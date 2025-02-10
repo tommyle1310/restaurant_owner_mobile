@@ -1,6 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Switch, Button } from 'react-native';
-import { Picker } from '@react-native-picker/picker';
+import React, { useState, useEffect } from "react";
+import { TextInput, Switch, Button } from "react-native";
+import { Picker } from "@react-native-picker/picker";
+import FFInputControl from "@/src/components/FFInputControl";
+import FFToggle from "@/src/components/FFToggle";
+import FFButton from "@/src/components/FFButton";
+import FFText from "@/src/components/FFText";
+import FFView from "@/src/components/FFView";
+import FFDropdown from "@/src/components/FFDropdown";
 
 interface MenuItem {
   _id?: string;
@@ -13,7 +19,7 @@ interface MenuItem {
   variants: string[];
   purchase_count: number;
   discount?: {
-    discount_type: 'FIXED' | 'PERCENTAGE';
+    discount_type: "FIXED" | "PERCENTAGE";
     discount_value: number;
     start_date: number;
     end_date: number;
@@ -22,9 +28,9 @@ interface MenuItem {
 
 const MenuManagement = () => {
   const [menuItem, setMenuItem] = useState<MenuItem>({
-    restaurant_id: '',
-    name: '',
-    description: '',
+    restaurant_id: "",
+    name: "",
+    description: "",
     category: [],
     availability: false,
     suggest_notes: [],
@@ -36,17 +42,17 @@ const MenuManagement = () => {
   useEffect(() => {
     setTimeout(() => {
       setMenuItem({
-        _id: '12345',
-        restaurant_id: 'rest_001',
-        name: 'Spicy Ramen',
-        description: 'A delicious spicy ramen with pork and egg',
-        category: ['Asian', 'Noodles'],
+        _id: "12345",
+        restaurant_id: "rest_001",
+        name: "Spicy Ramen",
+        description: "A delicious spicy ramen with pork and egg",
+        category: ["Asian", "Noodles"],
         availability: true,
-        suggest_notes: ['Less spicy', 'Extra noodles'],
-        variants: ['Large', 'Medium'],
+        suggest_notes: ["Less spicy", "Extra noodles"],
+        variants: ["Large", "Medium"],
         purchase_count: 40,
         discount: {
-          discount_type: 'PERCENTAGE',
+          discount_type: "PERCENTAGE",
           discount_value: 10,
           start_date: 1712438400,
           end_date: 1715030400,
@@ -56,38 +62,32 @@ const MenuManagement = () => {
   }, []);
 
   return (
-    <View style={{ padding: 20 }}>
-      <Text style={{ fontSize: 24, fontWeight: 'bold', marginBottom: 10 }}>Menu Management</Text>
-      <Text>Name:</Text>
-      <TextInput 
-        value={menuItem.name}
-        onChangeText={(text) => setMenuItem((prev) => ({ ...prev, name: text }))}
-        style={{ borderWidth: 1, padding: 8, marginBottom: 10 }}
+    <FFView style={{ padding: 20, flex: 1 }}>
+      <FFText fontSize="2xl">Menu Management</FFText>
+      <FFInputControl
+        error={""}
+        label="Item Name"
+        placeholder="Sushu Reamen"
+        setValue={() => {}}
+        value=""
       />
 
-      <Text>Availability:</Text>
-      <Switch 
-        value={menuItem.availability}
-        onValueChange={(value) => setMenuItem((prev) => ({ ...prev, availability: value }))}
-      />
-
-      <Text>Discount Type:</Text>
-      <Picker
-        selectedValue={menuItem.discount?.discount_type || ''}
-        onValueChange={(value: 'FIXED' | 'PERCENTAGE' | '') => {
-          setMenuItem((prev) => ({
-            ...prev,
-            discount: value ? { ...prev.discount, discount_type: value, discount_value: prev.discount?.discount_value || 0, start_date: prev.discount?.start_date || 0, end_date: prev.discount?.end_date || 0 } : null,
-          }));
-        }}
+      <FFView
+        style={{ flexDirection: "row", alignItems: "center", marginBottom: 10 }}
       >
-        <Picker.Item label="No Discount" value="" />
-        <Picker.Item label="Fixed" value="FIXED" />
-        <Picker.Item label="Percentage" value="PERCENTAGE" />
-      </Picker>
+        <FFText>Availability:</FFText>
+        <FFToggle />
+      </FFView>
 
-      <Button title="Save Menu Item" onPress={() => console.log(menuItem)} />
-    </View>
+      <FFDropdown
+      label="Select Variant"
+        onSelect={() => {}}
+        options={["Small", "Medium", "Large"]}
+        placeholder=""
+        selectedOption=""
+      />
+      <FFButton variant="danger" className="w-full my-4">Confirm</FFButton>
+    </FFView>
   );
 };
 

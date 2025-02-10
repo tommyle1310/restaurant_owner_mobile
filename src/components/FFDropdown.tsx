@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import {
   View,
   TouchableOpacity,
-  Text,
   StyleSheet,
   Modal,
   FlatList,
@@ -15,6 +14,7 @@ interface FFDropdownProps {
   selectedOption: string; // The current selected option
   onSelect: (option: string) => void; // Callback to handle option selection
   placeholder: string; // Placeholder text when no option is selected
+  label?: string; // Optional label for the dropdown
   style?: object; // Optional style prop for custom container styles
   textStyle?: object; // Optional style for the text in the dropdown
   optionStyle?: object; // Optional style for each option in the list
@@ -25,6 +25,7 @@ const FFDropdown: React.FC<FFDropdownProps> = ({
   selectedOption,
   onSelect,
   placeholder,
+  label,
   style,
   textStyle,
   optionStyle,
@@ -40,6 +41,7 @@ const FFDropdown: React.FC<FFDropdownProps> = ({
 
   return (
     <View style={[styles.container, style]}>
+      {label && <FFText style={styles.label}>{label}</FFText>}
       <TouchableOpacity
         style={[
           styles.button,
@@ -84,14 +86,14 @@ const FFDropdown: React.FC<FFDropdownProps> = ({
                     style={[styles.option, optionStyle]}
                     onPress={() => selectOption(item)}
                   >
-                    <Text
-                      style={[
-                        styles.optionText,
-                        { color: theme === "light" ? "#000" : "#fff" },
-                      ]}
+                    <FFText
+                      style={{
+                        ...styles.optionText,
+                        ...{ color: theme === "light" ? "#000" : "#fff" },
+                      }}
                     >
                       {item}
-                    </Text>
+                    </FFText>
                   </TouchableOpacity>
                 )}
               />
@@ -107,6 +109,11 @@ const styles = StyleSheet.create({
   container: {
     position: "relative",
     width: "100%",
+    gap: 4
+  },
+  label: {
+    // marginBottom: 8,
+    fontSize: 14,
   },
   button: {
     padding: 12,

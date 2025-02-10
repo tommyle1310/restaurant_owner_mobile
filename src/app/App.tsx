@@ -8,7 +8,7 @@ import HomeScreen from './screens/HomeScreen';
 import MenuManagement from './screens/MenuManagement';
 import PromotionList from './screens/PromotionList';
 import IncomingOrder from './screens/Order';
-import Settings from './screens/Settings';
+import Settings from './screens/SettingsScreen';
 import CustomerFeedback from './screens/CustomerFeedback';
 
 export type RootStackParamList = {

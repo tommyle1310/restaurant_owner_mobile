@@ -14,6 +14,7 @@ import FFButton from "@/src/components/FFButton";
 import FFAvatar from "@/src/components/FFAvatar";
 import FFModal from "@/src/components/FFModal";
 import FFText from "@/src/components/FFText";
+import FFInputControl from "@/src/components/FFInputControl";
 
 const SettingsScreen = () => {
   const [restaurantName, setRestaurantName] = useState("My Restaurant");
@@ -57,42 +58,19 @@ const SettingsScreen = () => {
           )}
         </TouchableOpacity>
       </View>
-      <View style={styles.inputGroup}>
-        <Text style={styles.label}>Restaurant Name</Text>
-        <TextInput
-          style={styles.input}
-          value={restaurantName}
-          onChangeText={setRestaurantName}
-          placeholder="Enter restaurant name"
-        />
+      <View className="gap-4 my-4">
+      <FFInputControl error='' label="Restaurant Name" placeholder="" setValue={()=>{}} value=''/>
+      <FFInputControl error='' label="Address" placeholder="" setValue={()=>{}} value=""/>
+      <FFInputControl error='' label="Email" placeholder="" setValue={()=>{}} value=""/>
       </View>
+    
 
-      <View style={styles.inputGroup}>
-        <Text style={styles.label}>Address</Text>
-        <TextInput
-          style={styles.input}
-          value={address}
-          onChangeText={setAddress}
-          placeholder="Enter address"
-        />
-      </View>
-
-      <View style={styles.inputGroup}>
-        <Text style={styles.label}>Contact Number</Text>
-        <TextInput
-          style={styles.input}
-          value={contact}
-          onChangeText={setContact}
-          placeholder="Enter contact number"
-          keyboardType="phone-pad"
-        />
-      </View>
 
       <FFButton
+      className="mt-4 w-full "
         onPress={() => {
           setIsOpenModal(true);
         }}
-        className="w-full"
       >
         Confirm
       </FFButton>
