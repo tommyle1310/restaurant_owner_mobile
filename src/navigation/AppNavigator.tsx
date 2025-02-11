@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { createStackNavigator } from "@react-navigation/stack";
-import { createBottomTabNavigator, BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
+import {
+  createBottomTabNavigator,
+  BottomTabNavigationProp,
+} from "@react-navigation/bottom-tabs";
 import { useSelector } from "react-redux";
 import { RootState } from "@/src/store/store";
 import { useDispatch } from "../store/types";
@@ -20,6 +23,8 @@ import { Order } from "../types/Orders";
 
 // Import your custom FFBottomTab
 import FFBottomTab from "../components/FFBottomTab";
+import PromotionManagement from "../app/screens/PromotionList";
+import CustomerFeedback from "../app/screens/CustomerFeedback";
 
 // Define the param lists for the navigators
 export type AuthStackParamList = {
@@ -34,9 +39,8 @@ export type RootStackParamList = {
 
 export type MainStackParamList = {
   BottomTabs: undefined;
-  RestaurantDetail: { restaurantId: string };
-  Checkout: { orderItem: Order };
-  Profile: undefined;
+  Promotions: undefined;
+  CustomerFeedback: undefined;
 };
 
 export type BottomTabParamList = {
@@ -97,18 +101,13 @@ const MainStackScreen = () => (
     />
     <MainStack.Screen
       options={{ headerShown: false }}
-      name="RestaurantDetail"
-      component={RestaurantDetail}
+      name="Promotions"
+      component={PromotionManagement}
     />
     <MainStack.Screen
       options={{ headerShown: false }}
-      name="Checkout"
-      component={CheckoutScreen}
-    />
-    <MainStack.Screen
-      options={{ headerShown: false }}
-      name="Profile"
-      component={ProfileScreen}
+      name="CustomerFeedback"
+      component={CustomerFeedback}
     />
   </MainStack.Navigator>
 );
@@ -148,7 +147,7 @@ const AppNavigator = () => {
   }
 
   return (
-    <RootStack.Navigator initialRouteName={token ? "Main" : "Auth"}>
+    <RootStack.Navigator initialRouteName={token ? "Main" : "Main"}>
       <RootStack.Screen
         name="Auth"
         options={{ headerShown: false }}
