@@ -2,18 +2,25 @@ import React, { useState } from "react";
 import { View, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation, NavigationProp } from "@react-navigation/native";
-import { RootStackParamList } from "FlashFood\Front-end\Restaurant_Owner\node_modules\@react-navigation\core\src\types.tsx"; // Adjust the path as necessary
 
 import FFSafeAreaView from "@/src/components/FFSafeAreaView";
 import FFText from "@/src/components/FFText";
 import FFView from "@/src/components/FFView";
 import FFAvatar from "@/src/components/FFAvatar";
 import PromotionManagement from "./PromotionList";
+import { StackNavigationProp } from "@react-navigation/stack";
+import { MainStackParamList } from "@/src/navigation/AppNavigator";
 
+type HomeNavigationProps = StackNavigationProp<
+  MainStackParamList,
+  "BottomTabs"
+>;
 
 const HomeScreen = () => {
-  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  const [promotionTab, setPromotionTab] = useState<"current" | "expired">("current");
+  const navigation = useNavigation<HomeNavigationProps>();
+  const [promotionTab, setPromotionTab] = useState<"current" | "expired">(
+    "current"
+  );
 
   // Function to return a greeting based on current hour.
   const getGreeting = () => {
@@ -28,7 +35,14 @@ const HomeScreen = () => {
   return (
     <FFSafeAreaView style={{ flex: 1, backgroundColor: "#f2f2f2" }}>
       {/* Header Section */}
-      <View style={{ padding: 16, backgroundColor: "#fff", flexDirection: "row", alignItems: "center" }}>
+      <View
+        style={{
+          padding: 16,
+          backgroundColor: "#fff",
+          flexDirection: "row",
+          alignItems: "center",
+        }}
+      >
         <FFAvatar size={50} />
         <View style={{ marginLeft: 12 }}>
           <FFText style={{ fontSize: 18, fontWeight: "bold" }}>
@@ -40,15 +54,26 @@ const HomeScreen = () => {
 
       {/* Promotions Section */}
       <View style={{ marginTop: 16, padding: 16, backgroundColor: "#fff" }}>
-        <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
-          <FFText style={{ fontSize: 18, fontWeight: "bold" }}>Promotions</FFText>
-          <TouchableOpacity onPress={() => navigation.navigate("PromotionList")}>
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          <FFText style={{ fontSize: 18, fontWeight: "bold" }}>
+            Promotions
+          </FFText>
+          <TouchableOpacity onPress={() => navigation.navigate("Promotions")}>
             <Ionicons name="arrow-forward" size={24} color="#000" />
           </TouchableOpacity>
         </View>
         {/* Promotion Tabs */}
         <View style={{ flexDirection: "row", marginTop: 12 }}>
-          <TouchableOpacity onPress={() => setPromotionTab("current")} style={{ marginRight: 16 }}>
+          <TouchableOpacity
+            onPress={() => setPromotionTab("current")}
+            style={{ marginRight: 16 }}
+          >
             <FFText
               style={{
                 fontSize: 16,
@@ -87,25 +112,51 @@ const HomeScreen = () => {
 
       {/* Customer Feedback Section */}
       <View style={{ marginTop: 16, padding: 16, backgroundColor: "#fff" }}>
-        <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
-          <FFText style={{ fontSize: 18, fontWeight: "bold" }}>Customer Feedback</FFText>
-          <TouchableOpacity onPress={() => navigation.navigate("CustomerFeedback")}>
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          <FFText style={{ fontSize: 18, fontWeight: "bold" }}>
+            Customer Feedback
+          </FFText>
+          <TouchableOpacity
+            onPress={() => navigation.navigate("CustomerFeedback")}
+          >
             <Ionicons name="arrow-forward" size={24} color="#000" />
           </TouchableOpacity>
         </View>
         <View style={{ marginTop: 12 }}>
           {/* Feedback Item 1 */}
-          <FFView style={{ marginBottom: 8, padding: 8, backgroundColor: "#f9f9f9", borderRadius: 8 }}>
+          <FFView
+            style={{
+              marginBottom: 8,
+              padding: 8,
+              backgroundColor: "#f9f9f9",
+              borderRadius: 8,
+            }}
+          >
             <FFText style={{ fontWeight: "bold" }}>John Doe</FFText>
             <FFText>Great food and service!</FFText>
           </FFView>
           {/* Feedback Item 2 */}
-          <FFView style={{ marginBottom: 8, padding: 8, backgroundColor: "#f9f9f9", borderRadius: 8 }}>
+          <FFView
+            style={{
+              marginBottom: 8,
+              padding: 8,
+              backgroundColor: "#f9f9f9",
+              borderRadius: 8,
+            }}
+          >
             <FFText style={{ fontWeight: "bold" }}>Jane Smith</FFText>
             <FFText>The ambience was amazing!</FFText>
           </FFView>
           {/* Feedback Item 3 */}
-          <FFView style={{ padding: 8, backgroundColor: "#f9f9f9", borderRadius: 8 }}>
+          <FFView
+            style={{ padding: 8, backgroundColor: "#f9f9f9", borderRadius: 8 }}
+          >
             <FFText style={{ fontWeight: "bold" }}>Sam Wilson</FFText>
             <FFText>Food was delicious but a bit pricey.</FFText>
           </FFView>
@@ -113,12 +164,22 @@ const HomeScreen = () => {
       </View>
 
       {/* Analytics Section */}
-      <View style={{ marginTop: 16, padding: 16, backgroundColor: "#fff", flex: 1 }}>
-        <FFText style={{ fontSize: 18, fontWeight: "bold", marginBottom: 12 }}>Analytics</FFText>
-        <View style={{ flexDirection: "row", flexWrap: "wrap", justifyContent: "space-between" }}>
+      <View
+        style={{ marginTop: 16, padding: 16, backgroundColor: "#fff", flex: 1 }}
+      >
+        <FFText style={{ fontSize: 18, fontWeight: "bold", marginBottom: 12 }}>
+          Analytics
+        </FFText>
+        <View
+          style={{
+            flexDirection: "row",
+            flexWrap: "wrap",
+            justifyContent: "space-between",
+          }}
+        >
           {/* Daily Sales */}
           <View
-            style={{
+          style={{
               width: "48%",
               backgroundColor: "#e6f7ff",
               padding: 12,
@@ -126,7 +187,9 @@ const HomeScreen = () => {
               marginBottom: 12,
             }}
           >
-            <FFText style={{ fontSize: 16, fontWeight: "bold" }}>Daily Sales</FFText>
+            <FFText style={{ fontSize: 16, fontWeight: "bold" }}>
+              Daily Sales
+            </FFText>
             <FFText>$1,200</FFText>
           </View>
           {/* Revenue */}
@@ -139,7 +202,9 @@ const HomeScreen = () => {
               marginBottom: 12,
             }}
           >
-            <FFText style={{ fontSize: 16, fontWeight: "bold" }}>Revenue</FFText>
+            <FFText style={{ fontSize: 16, fontWeight: "bold" }}>
+              Revenue
+            </FFText>
             <FFText>$15,000</FFText>
           </View>
           {/* Profit */}
@@ -165,7 +230,9 @@ const HomeScreen = () => {
               marginBottom: 12,
             }}
           >
-            <FFText style={{ fontSize: 16, fontWeight: "bold" }}>Popular Item</FFText>
+            <FFText style={{ fontSize: 16, fontWeight: "bold" }}>
+              Popular Item
+            </FFText>
             <FFText>Cheeseburger</FFText>
           </View>
           {/* Add more analytics items as needed */}
