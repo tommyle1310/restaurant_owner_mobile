@@ -4,7 +4,10 @@ import FFSafeAreaView from "@/src/components/FFSafeAreaView";
 import { useNavigation } from "@react-navigation/native";
 import FFAuthForm from "./FFAuthForm";
 import { StackNavigationProp } from "@react-navigation/stack";
-import { RootStackParamList } from "@/src/navigation/AppNavigator"; // Make sure you have this path correct
+import {
+  AuthStackParamList,
+  RootStackParamList,
+} from "@/src/navigation/AppNavigator"; // Make sure you have this path correct
 import { LinearGradient } from "expo-linear-gradient";
 import { useDispatch, useSelector } from "@/src/store/types";
 import {
@@ -21,12 +24,14 @@ import {
 } from "@/src/store/userPreferenceSlice";
 
 type LoginScreenNavigationProp = StackNavigationProp<
-  RootStackParamList,
+  AuthStackParamList,
   "Login"
 >;
+type RootNavigationProp = StackNavigationProp<RootStackParamList, "Auth">;
 
 const Login = () => {
-  const navigation = useNavigation<LoginScreenNavigationProp>();
+  const authNavigation = useNavigation<LoginScreenNavigationProp>();
+  const rootNavigation = useNavigation<RootNavigationProp>();
   const dispatch = useDispatch();
   const [error, setError] = useState("");
   const handleLoginSubmit = async (email: string, password: string) => {
@@ -39,7 +44,7 @@ const Login = () => {
     try {
       // Make the POST request
       const response = await axiosInstance.post(
-        "/auth/login-customer",
+        "/auth/login-restaurant",
         requestBody,
         {
           // This will ensure axios does NOT reject on non-2xx status codes
@@ -60,14 +65,29 @@ const Login = () => {
             accessToken: data.access_token, // Saving the actual access token
             app_preferences: userData.app_preferences || {}, // Fallback to empty object if not present
             email: userData.email || "", // Default to empty string if email is missing
-            preferred_category: userData.preferred_category || [], // Ensure this is an array
-            favorite_items: userData.favorite_items || [], // Ensure this is an array
-            avatar: userData.avatar || null, // Use null if no avatar data is available
-            support_tickets: userData.support_tickets || [], // Ensure this is an array
-            user_id: userData.user_id || "", // Default to empty string if not present
-            user_type: userData.user_type || [], // Ensure this is an array
             address: userData.address || [],
-            cart_items: userData.cart_items || [],
+            restaurant_id: userData.restaurant_id || "",
+            avatar: userData.address || { key: "", url: "" },
+            contact_email: userData.contact_email || [],
+            contact_phone: userData.contact_phone || [],
+            images_gallery: userData.images_gallery || [],
+            opening_hours: userData.opening_hours || {
+              mon: {},
+              tue: {},
+              wed: {},
+              thu: {},
+              fri: {},
+              sat: {},
+              sun: {},
+            },
+            owner_id: userData.owner_id || "",
+            promotions: userData.promotions || [],
+            ratings: userData.ratings || {},
+            restaurant_name: userData.restaurant_name || "",
+            specialize_in: userData.specialize_in || [],
+            status: userData.status || {},
+            user_id: userData.user_id || "",
+            user_type: userData.user_type || "RESTAURANT_OWNER",
           })
         );
         dispatch(
@@ -76,7 +96,7 @@ const Login = () => {
 
         dispatch(saveCartItemsToAsyncStorage(userData.cart_items));
 
-        navigation.navigate("Home");
+        rootNavigation.navigate("Main");
       } else {
         // Handle error based on EC (optional)
         setError(EM); // Show error message if EC is non-zero
@@ -86,17 +106,6 @@ const Login = () => {
       setError("An unexpected error occurred during login."); // Provide a generic error message if the request fails
     }
   };
-
-  const accessToken = useSelector((state: RootState) => state.auth.accessToken);
-  const isAuthenticated = useSelector(
-    (state: RootState) => state.auth.isAuthenticated
-  );
-
-  if (isAuthenticated) {
-    // console.log("User is authenticated with token:", accessToken);
-  } else {
-    console.log("User is not authenticated");
-  }
 
   return (
     <FFSafeAreaView>
@@ -110,7 +119,7 @@ const Login = () => {
           error={error}
           isSignUp={false}
           onSubmit={handleLoginSubmit}
-          navigation={navigation}
+          navigation={authNavigation}
         />
       </LinearGradient>
     </FFSafeAreaView>

@@ -45,8 +45,6 @@ export const usePushNotifications = (): PushNotificationState => {
         projectId: Constants.expoConfig?.extra?.eas?.projectId,
       });
 
-      console.log("Received Expo Push Token:", token?.data); // Add this log
-
       if (Platform.OS === "android") {
         Notifications.setNotificationChannelAsync("default", {
           name: "default",

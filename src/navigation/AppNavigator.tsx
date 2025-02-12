@@ -147,7 +147,7 @@ const AppNavigator = () => {
   }
 
   return (
-    <RootStack.Navigator initialRouteName={token ? "Main" : "Main"}>
+    <RootStack.Navigator initialRouteName={token ? "Main" : "Auth"}>
       <RootStack.Screen
         name="Auth"
         options={{ headerShown: false }}
