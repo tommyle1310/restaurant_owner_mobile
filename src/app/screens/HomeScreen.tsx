@@ -179,7 +179,7 @@ const HomeScreen = () => {
         >
           {/* Daily Sales */}
           <View
-          style={{
+            style={{
               width: "48%",
               backgroundColor: "#e6f7ff",
               padding: 12,
