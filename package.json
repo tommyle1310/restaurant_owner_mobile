@@ -1,5 +1,5 @@
 {
-  "name": "FF_Restaurant_Owner",
+  "name": "ff_restaurant_owner",
   "main": "expo-router/entry",
   "version": "1.0.0",
   "scripts": {
