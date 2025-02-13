@@ -2,7 +2,7 @@
 import io from "socket.io-client";
 
 const socket = io(
-  "https://dd8e-2001-ee0-50c6-6480-f058-9372-7dd6-142e.ngrok-free.app"
+  "https://224e-2001-ee0-50c6-6480-f058-9372-7dd6-142e.ngrok-free.app"
 ); // Replace with your backend URL
 
 socket.on("connect", () => {

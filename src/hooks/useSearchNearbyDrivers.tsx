@@ -2,20 +2,30 @@ import { useState, useEffect } from "react";
 
 // Type for the driver
 interface Driver {
-  id: string;
+  _id: string;
   lat: number;
   lng: number;
 }
 
-// Custom hook to fetch all and nearby drivers based on the selected location
-const useSearchNearbyDrivers = (
-  selectedLocation: { lat: number; lng: number } | null,
-  tomtomKey: string,
-  nearbySearchRadius: number = 1000, // Default radius is 1000 meters (1km)
-  totalDrivers: number = 7 // Default total drivers to generate
-) => {
+// Type for the hook props
+interface UseSearchNearbyDriversProps {
+  selectedLocation: { lat: number; lng: number } | null;
+  tomtomKey: string;
+  nearbySearchRadius?: number; // Optional radius, default is 1000 meters
+  totalDrivers?: number; // Optional total drivers, default is 7
+  isCaptureDriverOnlyThisMoment?: boolean; // Flag to capture drivers only once
+}
+
+const useSearchNearbyDrivers = ({
+  selectedLocation,
+  tomtomKey = "e73LfeJGmk0feDJtiyifoYWpPANPJLhT",
+  nearbySearchRadius = 1000,
+  totalDrivers = 5,
+  isCaptureDriverOnlyThisMoment = false,
+}: UseSearchNearbyDriversProps) => {
   const [allDrivers, setAllDrivers] = useState<Driver[]>([]); // Stores all drivers
   const [nearbyDrivers, setNearbyDrivers] = useState<Driver[]>([]); // Stores nearby drivers
+  const [hasCapturedDrivers, setHasCapturedDrivers] = useState(false); // Flag to track if drivers have been captured
 
   // Function to calculate distance between two coordinates (Haversine formula)
   const getDistance = (
@@ -46,7 +56,14 @@ const useSearchNearbyDrivers = (
     numDrivers: number
   ): Driver[] => {
     const drivers: Driver[] = [];
-    for (let i = 0; i < numDrivers; i++) {
+    const listDriverIdSample = [
+      "DRI_1bcb34fa-ac9d-4611-b432-4e05586e137c",
+      "DRI_ee4e115b-0d08-486b-a2a4-b3b28a18a052",
+      "DRI_e27a2c61-5cb6-4672-9136-7d9296d30623",
+      "DRI_170b74ef-ba48-40a5-bab6-ac9562eba7e3",
+      "DRI_11d6bc82-3f2a-4ff9-9700-712c5907b788",
+    ];
+    for (let i = 0; i < listDriverIdSample.length || numDrivers; i++) {
       const angle = Math.random() * 2 * Math.PI; // Random angle between 0 and 2π
       const distance = Math.random() * (radius + 1000); // Allow some drivers outside the radius (extra 1km)
 
@@ -60,7 +77,11 @@ const useSearchNearbyDrivers = (
       const driverlng = centerlng + lngOffset;
 
       // Store the generated driver
-      drivers.push({ id: `driver_${i}`, lat: driverLat, lng: driverlng });
+      drivers.push({
+        _id: listDriverIdSample[i],
+        lat: driverLat,
+        lng: driverlng,
+      });
     }
 
     return drivers;
@@ -87,19 +108,20 @@ const useSearchNearbyDrivers = (
 
     // Set the nearby drivers in the state
     setNearbyDrivers(nearby);
-
-    // Log all drivers and nearby drivers to the console for debugging
-    console.log("All drivers:", drivers);
-    console.log("Nearby drivers:", nearby);
   };
 
-  // Use effect to trigger fetching all drivers when selectedLocation changes
+  // Use effect to trigger fetching all drivers when selectedLocation changes or if capture flag is true
   useEffect(() => {
-    if (selectedLocation) {
+    if (
+      selectedLocation &&
+      isCaptureDriverOnlyThisMoment &&
+      !hasCapturedDrivers
+    ) {
       const { lat, lng } = selectedLocation;
       getAllDrivers(lat, lng);
+      setHasCapturedDrivers(true); // Mark that drivers have been captured
     }
-  }, [selectedLocation]); // Only run this effect when the location changes
+  }, [selectedLocation, isCaptureDriverOnlyThisMoment, hasCapturedDrivers]);
 
   // Return all drivers and nearby drivers
   return { allDrivers, nearbyDrivers };
