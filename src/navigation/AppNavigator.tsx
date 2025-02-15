@@ -38,6 +38,7 @@ import Spinner from "../components/FFSpinner";
 import { usePushNotifications } from "../hooks/usePushNotifications";
 import { sendPushNotification } from "../utils/functions/pushNotification";
 import { View } from "react-native";
+import socket from "../services/socket";
 
 // Define the param lists for the navigators
 export type AuthStackParamList = {
@@ -114,13 +115,6 @@ const MainStackScreen = () => {
   const { restaurant_id } = useSelector((state: RootState) => state.auth);
   const { expoPushToken } = usePushNotifications();
 
-  // const { nearbyDrivers, allDrivers } = useSearchNearbyDrivers({
-  //   selectedLocation,
-  //   tomtomKey: "7zmNwV5XQGs5II7Z7KxIp9K551ZlFAwV",
-  //   isCaptureDriverOnlyThisMoment: true,
-  // });
-  // console.log(nearbyDrivers, allDrivers);
-
   const [orders, setOrders] = useState<Type_PushNotification_Order[]>([]);
   const [isShowIncomingOrderToast, setIsShowIncomingOrderToast] =
     useState(false);
@@ -161,12 +155,22 @@ const MainStackScreen = () => {
       expoPushToken: pushToken,
     })
   );
-  // const { nearbyDrivers } = useSearchNearbyDrivers({
-  //   selectedLocation,
-  //   tomtomKey: "e73LfeJGmk0feDJtiyifoYWpPANPJLhT",
-  //   isCaptureDriverOnlyThisMoment: true,
-  // });
-  console.log("cejck order", latestOrder);
+  const { nearbyDrivers, allDrivers } = useSearchNearbyDrivers({
+    selectedLocation,
+    tomtomKey: "e73LfeJGmk0feDJtiyifoYWpPANPJLhT",
+    isCaptureDriverOnlyThisMoment: true,
+  });
+
+  const handleAcceptOrder = async () => {
+    console.log("cejck order", nearbyDrivers, latestOrder);
+    const requestBody = {
+      availableDrivers: nearbyDrivers,
+      orderDetails: latestOrder,
+    };
+    // Emit the event to the backend via WebSocket
+    socket.emit("restaurantAcceptWithAvailableDrivers", requestBody);
+    setIsShowIncomingOrderToast(false);
+  };
 
   return (
     <>
@@ -190,6 +194,7 @@ const MainStackScreen = () => {
       {/* FFToast logic is commented for now */}
       <FFToast
         disabledClose
+        onAccept={handleAcceptOrder}
         onClose={() => setIsShowIncomingOrderToast(false)}
         visible={isShowIncomingOrderToast}
         isApprovalType

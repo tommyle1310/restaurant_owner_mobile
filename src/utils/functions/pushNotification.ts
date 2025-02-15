@@ -28,7 +28,6 @@ export const sendPushNotification = async ({
         },
         trigger: null, // Triggers immediately
       });
-      console.log("Push notification sent successfully:", response);
     } catch (error) {
       console.error("Error sending push notification:", error);
     }

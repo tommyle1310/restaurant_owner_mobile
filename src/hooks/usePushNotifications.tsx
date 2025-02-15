@@ -18,13 +18,10 @@ export const usePushNotifications = (): PushNotificationState => {
       shouldSetBadge: true,
     }),
   });
-  console.log("check here @@");
   const [expoPushToken, setExpoPushToken] = useState<
     Notifications.ExpoPushToken | undefined
   >();
-  console.log("useState completed successfully");
 
-  console.log("check here ##");
   const [notifications, setNotifications] = useState<
     Notifications.Notification | undefined
   >();

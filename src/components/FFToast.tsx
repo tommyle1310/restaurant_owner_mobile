@@ -85,7 +85,12 @@ const FFToast: React.FC<FFToastProps> = ({
       <View
         style={{ height: "100%", width: 5, backgroundColor: "#63c550" }}
       ></View>
-      <IconMaterialIcons name="post-add" size={18} color={"#63c550"} />
+      <IconMaterialIcons
+        name="post-add"
+        size={18}
+        color={"#63c550"}
+        style={{ marginTop: 12 }}
+      />
       <View style={{ marginVertical: 8, flex: 1 }}>
         <View>{children}</View>
         <TouchableOpacity onPress={onReject}>
@@ -98,7 +103,7 @@ const FFToast: React.FC<FFToastProps> = ({
       {isApprovalType && (
         <View
           style={{
-            justifyContent: "flex-end",
+            marginTop: 12,
             marginRight: 10,
           }}
         >
@@ -141,7 +146,6 @@ const styles = StyleSheet.create({
     zIndex: 9999, // Ensure the toast appears above other content
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "center",
     elevation: 10, // Add shadow for iOS and Android elevation
   },
   toastContent: {
