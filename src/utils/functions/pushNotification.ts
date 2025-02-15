@@ -2,11 +2,13 @@ import { usePushNotifications } from "@/src/hooks/usePushNotifications";
 import { Type_PushNotification_Order } from "@/src/types/pushNotification";
 import * as Notifications from "expo-notifications";
 
-export const sendPushNotification = async (
-  order: Type_PushNotification_Order
-) => {
-  const { expoPushToken } = usePushNotifications();
-
+export const sendPushNotification = async ({
+  order,
+  expoPushToken,
+}: {
+  order: Type_PushNotification_Order;
+  expoPushToken: { data: string };
+}) => {
   if (expoPushToken) {
     const message = {
       to: expoPushToken.data,

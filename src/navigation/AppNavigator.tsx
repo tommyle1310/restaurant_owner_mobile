@@ -110,6 +110,7 @@ const MainStackScreen = () => {
     lng: 106.617353,
   });
   const { restaurant_id } = useSelector((state: RootState) => state.auth);
+  const { expoPushToken } = usePushNotifications();
 
   // const { nearbyDrivers, allDrivers } = useSearchNearbyDrivers({
   //   selectedLocation,
@@ -124,10 +125,20 @@ const MainStackScreen = () => {
   useEffect(() => {
     if (orders.length > 0) {
       setIsShowIncomingOrderToast(true);
-      sendPushNotification(orders[orders.length - 1]);
+      let pushToken = expoPushToken as unknown as { data: string };
+      sendPushNotification({
+        order: orders[orders.length - 1],
+        expoPushToken: pushToken,
+      });
     }
   }, [orders]);
-  useSocket(restaurant_id || "", setOrders, sendPushNotification);
+  let pushToken = expoPushToken as unknown as { data: string };
+  useSocket(restaurant_id || "", setOrders, () =>
+    sendPushNotification({
+      order: orders[orders.length - 1],
+      expoPushToken: pushToken,
+    })
+  );
   // const { nearbyDrivers } = useSearchNearbyDrivers({
   //   selectedLocation,
   //   tomtomKey: "e73LfeJGmk0feDJtiyifoYWpPANPJLhT",
