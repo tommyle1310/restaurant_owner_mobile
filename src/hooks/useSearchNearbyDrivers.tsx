@@ -12,13 +12,13 @@ interface UseSearchNearbyDriversProps {
   selectedLocation: { lat: number; lng: number } | null;
   tomtomKey: string;
   nearbySearchRadius?: number; // Optional radius, default is 1000 meters
-  totalDrivers?: number; // Optional total drivers, default is 7
+  totalDrivers?: number; // Optional total drivers, default is 5
   isCaptureDriverOnlyThisMoment?: boolean; // Flag to capture drivers only once
 }
 
 const useSearchNearbyDrivers = ({
   selectedLocation,
-  tomtomKey = "e73LfeJGmk0feDJtiyifoYWpPANPJLhT",
+  tomtomKey,
   nearbySearchRadius = 1000,
   totalDrivers = 5,
   isCaptureDriverOnlyThisMoment = false,
@@ -51,7 +51,7 @@ const useSearchNearbyDrivers = ({
   // Helper function to generate random driver locations with better scatter
   const getRandomDriverLocations = (
     centerLat: number,
-    centerlng: number,
+    centerLng: number,
     radius: number,
     numDrivers: number
   ): Driver[] => {
@@ -63,24 +63,28 @@ const useSearchNearbyDrivers = ({
       "DRI_170b74ef-ba48-40a5-bab6-ac9562eba7e3",
       "DRI_11d6bc82-3f2a-4ff9-9700-712c5907b788",
     ];
-    for (let i = 0; i < listDriverIdSample.length || numDrivers; i++) {
+
+    // Make sure we don't try to generate more drivers than we have IDs for
+    const count = Math.min(numDrivers, listDriverIdSample.length);
+
+    for (let i = 0; i < count; i++) {
       const angle = Math.random() * 2 * Math.PI; // Random angle between 0 and 2π
       const distance = Math.random() * (radius + 1000); // Allow some drivers outside the radius (extra 1km)
 
-      // Convert polar coordinates to latitude/lnggitude offsets
+      // Convert polar coordinates to latitude/longitude offsets
       const latOffset = (distance / 111300) * Math.sin(angle);
       const lngOffset =
         (distance / (111300 * Math.cos(centerLat * (Math.PI / 180)))) *
         Math.cos(angle);
 
       const driverLat = centerLat + latOffset;
-      const driverlng = centerlng + lngOffset;
+      const driverLng = centerLng + lngOffset;
 
       // Store the generated driver
       drivers.push({
         _id: listDriverIdSample[i],
         lat: driverLat,
-        lng: driverlng,
+        lng: driverLng,
       });
     }
 
@@ -120,8 +124,11 @@ const useSearchNearbyDrivers = ({
       const { lat, lng } = selectedLocation;
       getAllDrivers(lat, lng);
       setHasCapturedDrivers(true); // Mark that drivers have been captured
+    } else if (selectedLocation && !isCaptureDriverOnlyThisMoment) {
+      const { lat, lng } = selectedLocation;
+      getAllDrivers(lat, lng);
     }
-  }, [selectedLocation, isCaptureDriverOnlyThisMoment, hasCapturedDrivers]);
+  }, [selectedLocation, isCaptureDriverOnlyThisMoment]);
 
   // Return all drivers and nearby drivers
   return { allDrivers, nearbyDrivers };

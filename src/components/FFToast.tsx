@@ -8,14 +8,17 @@ import {
 } from "react-native";
 import { useTheme } from "@/src/hooks/useTheme"; // Import your custom useTheme hook
 import IconIonicon from "react-native-vector-icons/Ionicons";
+import IconMaterialIcons from "react-native-vector-icons/MaterialIcons";
+import FFText from "./FFText";
 
 interface FFToastProps {
   visible: boolean;
   onClose: () => void;
   disabledClose?: boolean;
+  variant?: "SUCCESS" | "DANGER" | "INFO";
+  isApprovalType?: boolean;
   duration?: number; // Duration for how long the toast stays on screen (in ms)
   children: React.ReactNode; // Use children prop for customizable content
-  isApproveToast?: boolean; // Prop to trigger Accept/Reject buttons
   onAccept?: () => void; // Callback for the Accept button
   onReject?: () => void; // Callback for the Reject button
 }
@@ -25,15 +28,16 @@ const FFToast: React.FC<FFToastProps> = ({
   onClose,
   disabledClose = false,
   children,
-  duration = 3600000, // Default duration is 3 seconds
-  isApproveToast = false, // Whether to show Accept/Reject buttons
+  variant = "INFO",
+  isApprovalType = false,
+  duration = 20000000, // Default duration is 3 seconds
   onAccept,
   onReject,
 }) => {
   const { theme } = useTheme(); // Get the theme for dynamic styling
 
   const [show, setShow] = useState(visible);
-  const slideAnim = useRef(new Animated.Value(-100)).current; // Start position above the screen
+  const slideAnim = useRef(new Animated.Value(-120)).current; // Start position above the screen
 
   // This will trigger the toast to show or hide
   useEffect(() => {
@@ -68,26 +72,56 @@ const FFToast: React.FC<FFToastProps> = ({
       style={[
         styles.toastContainer,
         {
-          backgroundColor: theme === "light" ? "#f3f5f3" : "#333", // Theme-based background color
+          backgroundColor: theme === "light" ? "#fff" : "#333", // Theme-based background color
           transform: [{ translateY: slideAnim }], // Apply the sliding animation
           borderColor: "#a3d98f",
           borderWidth: 1,
           shadowColor: "#a3d98f",
-          flexDirection: "column",
+          flexDirection: "row",
+          gap: 8,
         },
       ]}
     >
-      <View style={styles.toastContent}>{children}</View>
-      {/* If isApproveToast is true, show Accept/Reject buttons */}
-      {isApproveToast && (
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity onPress={onReject} style={styles.rejectButton}>
-            <IconIonicon name="close" style={styles.rejectIcon} />
-            <Text style={styles.rejectText}>Reject</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={onAccept} style={styles.acceptButton}>
-            <IconIonicon name="checkmark" style={styles.acceptIcon} />
-            <Text style={styles.acceptText}>Accept</Text>
+      <View
+        style={{ height: "100%", width: 5, backgroundColor: "#63c550" }}
+      ></View>
+      <IconMaterialIcons
+        name="post-add"
+        size={18}
+        color={"#63c550"}
+        style={{ marginTop: 12 }}
+      />
+      <View style={{ marginVertical: 8, flex: 1 }}>
+        <View>{children}</View>
+        <TouchableOpacity onPress={onReject}>
+          {/* <IconIonicon name="close" style={styles.rejectIcon} /> */}
+          <FFText fontSize="sm" style={{ color: "#ff4343" }}>
+            Reject
+          </FFText>
+        </TouchableOpacity>
+      </View>
+      {isApprovalType && (
+        <View
+          style={{
+            marginTop: 12,
+            marginRight: 10,
+          }}
+        >
+          <TouchableOpacity
+            onPress={onAccept}
+            style={{
+              width: 40,
+              height: 40,
+              alignItems: "center",
+              justifyContent: "center",
+              borderRadius: 4,
+              backgroundColor: "#E1F8E3",
+            }}
+          >
+            {/* <IconIonicon name="checkmark" style={styles.acceptIcon} /> */}
+            <FFText fontSize="sm" style={{ color: "#63c550" }}>
+              Got It
+            </FFText>
           </TouchableOpacity>
         </View>
       )}
@@ -107,12 +141,11 @@ const styles = StyleSheet.create({
     top: 50, // Adjust the top position to be visible at the top of the screen
     left: "5%",
     right: "5%",
-    padding: 10,
-    borderRadius: 10,
+    overflow: "hidden",
+    borderRadius: 6,
     zIndex: 9999, // Ensure the toast appears above other content
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "center",
     elevation: 10, // Add shadow for iOS and Android elevation
   },
   toastContent: {
@@ -141,7 +174,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     justifyContent: "center",
     alignItems: "center",
-    width: "48%",
+    width: "45%",
   },
   acceptIcon: {
     color: "#fff",
@@ -157,7 +190,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#F44336", // Red background for Reject button
     paddingVertical: 8,
     paddingHorizontal: 12,
-    width: "48%",
+    width: "45%",
     borderRadius: 5,
     marginRight: 10, // Space between Accept and Reject button
     justifyContent: "center",

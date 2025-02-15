@@ -37,6 +37,8 @@ import FFText from "../components/FFText";
 import Spinner from "../components/FFSpinner";
 import { usePushNotifications } from "../hooks/usePushNotifications";
 import { sendPushNotification } from "../utils/functions/pushNotification";
+import { View } from "react-native";
+import socket from "../services/socket";
 
 // Define the param lists for the navigators
 export type AuthStackParamList = {
@@ -109,14 +111,9 @@ const MainStackScreen = () => {
     lat: 10.826411,
     lng: 106.617353,
   });
+  const [latestOrder, setLatestOrder] = useState<Order | null>(null);
   const { restaurant_id } = useSelector((state: RootState) => state.auth);
-
-  // const { nearbyDrivers, allDrivers } = useSearchNearbyDrivers({
-  //   selectedLocation,
-  //   tomtomKey: "7zmNwV5XQGs5II7Z7KxIp9K551ZlFAwV",
-  //   isCaptureDriverOnlyThisMoment: true,
-  // });
-  // console.log(nearbyDrivers, allDrivers);
+  const { expoPushToken } = usePushNotifications();
 
   const [orders, setOrders] = useState<Type_PushNotification_Order[]>([]);
   const [isShowIncomingOrderToast, setIsShowIncomingOrderToast] =
@@ -124,16 +121,56 @@ const MainStackScreen = () => {
   useEffect(() => {
     if (orders.length > 0) {
       setIsShowIncomingOrderToast(true);
-      sendPushNotification(orders[orders.length - 1]);
+      let pushToken = expoPushToken as unknown as { data: string };
+      sendPushNotification({
+        order: orders[orders.length - 1],
+        expoPushToken: pushToken,
+      });
     }
   }, [orders]);
-  useSocket(restaurant_id || "", setOrders, sendPushNotification);
-  // const { nearbyDrivers } = useSearchNearbyDrivers({
-  //   selectedLocation,
-  //   tomtomKey: "e73LfeJGmk0feDJtiyifoYWpPANPJLhT",
-  //   isCaptureDriverOnlyThisMoment: true,
-  // });
-  // console.log("cejck new by", nearbyDrivers);
+  useEffect(() => {
+    if (orders.length > 0) {
+      const order = orders[orders.length - 1] as unknown as Order;
+      let buildLatestOrder = {
+        customer_id: order.customer_id,
+        restaurant_id: order.restaurant_id,
+        total_amount: order.total_amount,
+        payment_method: order.payment_method,
+        customer_location: order.customer_location,
+        restaurant_location: order.restaurant_location,
+        order_items: order.order_items,
+        customer_note: order.customer_note,
+        restaurant_note: order.restaurant_note,
+        status: order.status,
+        order_time: order.order_time,
+        tracking_info: order.tracking_info,
+      };
+      setLatestOrder(buildLatestOrder);
+    }
+  }, [orders]);
+  let pushToken = expoPushToken as unknown as { data: string };
+  useSocket(restaurant_id || "", setOrders, () =>
+    sendPushNotification({
+      order: orders[orders.length - 1],
+      expoPushToken: pushToken,
+    })
+  );
+  const { nearbyDrivers, allDrivers } = useSearchNearbyDrivers({
+    selectedLocation,
+    tomtomKey: "e73LfeJGmk0feDJtiyifoYWpPANPJLhT",
+    isCaptureDriverOnlyThisMoment: true,
+  });
+
+  const handleAcceptOrder = async () => {
+    console.log("cejck order", nearbyDrivers, latestOrder);
+    const requestBody = {
+      availableDrivers: nearbyDrivers,
+      orderDetails: latestOrder,
+    };
+    // Emit the event to the backend via WebSocket
+    socket.emit("restaurantAcceptWithAvailableDrivers", requestBody);
+    setIsShowIncomingOrderToast(false);
+  };
 
   return (
     <>
@@ -157,11 +194,30 @@ const MainStackScreen = () => {
       {/* FFToast logic is commented for now */}
       <FFToast
         disabledClose
+        onAccept={handleAcceptOrder}
         onClose={() => setIsShowIncomingOrderToast(false)}
         visible={isShowIncomingOrderToast}
-        isApproveToast
+        isApprovalType
       >
-        <FFText>New Order</FFText>
+        <FFText>Incoming Order</FFText>
+        <View className="flex-row items-center gap-4">
+          <View className="flex-row items-center gap-1">
+            <FFText fontSize="sm" fontWeight="500">
+              Total:
+            </FFText>
+            <FFText fontSize="sm" fontWeight="600" style={{ color: "#63c550" }}>
+              ${latestOrder?.total_amount}
+            </FFText>
+          </View>
+          <View className="flex-row items-center gap-1">
+            <FFText fontSize="sm" fontWeight="600">
+              {latestOrder?.order_items.length}
+            </FFText>
+            <FFText fontSize="sm" fontWeight="500" style={{ color: "#63c550" }}>
+              items
+            </FFText>
+          </View>
+        </View>
       </FFToast>
     </>
   );

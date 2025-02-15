@@ -21,6 +21,7 @@ export const usePushNotifications = (): PushNotificationState => {
   const [expoPushToken, setExpoPushToken] = useState<
     Notifications.ExpoPushToken | undefined
   >();
+
   const [notifications, setNotifications] = useState<
     Notifications.Notification | undefined
   >();
