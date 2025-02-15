@@ -21,7 +21,7 @@ export const useSocket = (
     }
 
     // Function to join the restaurant's room
-    socket.emit("joinRoom", restaurantId);
+    socket.emit("joinRoomRestaurant", restaurantId);
 
     // Listen for incoming orders
     socket.on("incomingOrder", (order: Order) => {
