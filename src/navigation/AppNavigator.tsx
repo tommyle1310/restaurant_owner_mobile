@@ -162,7 +162,6 @@ const MainStackScreen = () => {
   });
 
   const handleAcceptOrder = async () => {
-    console.log("cejck order", nearbyDrivers, latestOrder);
     const requestBody = {
       availableDrivers: nearbyDrivers,
       orderDetails: latestOrder,

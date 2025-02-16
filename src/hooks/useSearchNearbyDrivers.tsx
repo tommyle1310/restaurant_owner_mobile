@@ -56,20 +56,15 @@ const useSearchNearbyDrivers = ({
     numDrivers: number
   ): Driver[] => {
     const drivers: Driver[] = [];
-    const listDriverIdSample = [
-      "DRI_1bcb34fa-ac9d-4611-b432-4e05586e137c",
-      "DRI_ee4e115b-0d08-486b-a2a4-b3b28a18a052",
-      "DRI_e27a2c61-5cb6-4672-9136-7d9296d30623",
-      "DRI_170b74ef-ba48-40a5-bab6-ac9562eba7e3",
-      "DRI_11d6bc82-3f2a-4ff9-9700-712c5907b788",
-    ];
+    const listDriverIdSample = ["DRI_1bcb34fa-ac9d-4611-b432-4e05586e137c"];
 
     // Make sure we don't try to generate more drivers than we have IDs for
     const count = Math.min(numDrivers, listDriverIdSample.length);
 
     for (let i = 0; i < count; i++) {
       const angle = Math.random() * 2 * Math.PI; // Random angle between 0 and 2π
-      const distance = Math.random() * (radius + 1000); // Allow some drivers outside the radius (extra 1km)
+      const distance = Math.random() * (radius + 0); // all sample drivers inside the radius
+      // const distance = Math.random() * (radius + 1000); // Allow some drivers outside the radius (extra 1km)
 
       // Convert polar coordinates to latitude/longitude offsets
       const latOffset = (distance / 111300) * Math.sin(angle);
