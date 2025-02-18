@@ -1,13 +1,11 @@
 import React, { useState } from "react";
-import { View, TouchableOpacity } from "react-native";
+import { View, TouchableOpacity, ScrollView, StatusBar } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation, NavigationProp } from "@react-navigation/native";
+import { LinearGradient } from "expo-linear-gradient";
 
 import FFSafeAreaView from "@/src/components/FFSafeAreaView";
 import FFText from "@/src/components/FFText";
-import FFView from "@/src/components/FFView";
-import FFAvatar from "@/src/components/FFAvatar";
-import PromotionManagement from "./PromotionList";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { MainStackParamList } from "@/src/navigation/AppNavigator";
 
@@ -32,28 +30,45 @@ const HomeScreen = () => {
 
   const restaurantName = "Restaurant ABC";
 
+  // Daily stats section data
+  const dailyStats = {
+    revenue: "0đ",
+    orders: "Chưa có đơn",
+    topDish: "Món bán chạy nhất hôm nay",
+  };
+
+  // Menu grid items
+  const menuItems = [
+    { id: 1, icon: "bag", label: "Đơn hàng" },
+    { id: 2, icon: "time", label: "Lịch sử" },
+    { id: 3, icon: "document-text", label: "Thực đơn" },
+    { id: 4, icon: "star", label: "Đánh giá" },
+    { id: 5, icon: "pricetag", label: "Khuyến mãi" },
+    { id: 6, icon: "wallet", label: "Ví" },
+    { id: 7, icon: "bulb", label: "Marketing" },
+    { id: 8, icon: "megaphone", label: "Quảng cáo" },
+    { id: 9, icon: "play", label: "Video VILL" },
+    { id: 10, icon: "people", label: "Nhân viên" },
+    { id: 11, icon: "pie-chart", label: "Báo cáo" },
+    { id: 12, icon: "person", label: "Cá nhân" },
+  ];
+
   return (
-    <FFSafeAreaView style={{ flex: 1, backgroundColor: "#f2f2f2" }}>
-      {/* Header Section */}
+    <FFSafeAreaView style={{ flex: 1, backgroundColor: "#f8f9fa" }}>
+      <StatusBar barStyle="dark-content" />
+
+      {/* Header Section stays outside ScrollView */}
       <View
         style={{
-          padding: 16,
+          padding: 20,
           backgroundColor: "#fff",
-          flexDirection: "row",
-          alignItems: "center",
+          shadowColor: "#000",
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.05,
+          shadowRadius: 15,
+          elevation: 2,
         }}
       >
-        <FFAvatar size={50} />
-        <View style={{ marginLeft: 12 }}>
-          <FFText style={{ fontSize: 18, fontWeight: "bold" }}>
-            {getGreeting()},
-          </FFText>
-          <FFText style={{ fontSize: 16 }}>{restaurantName}</FFText>
-        </View>
-      </View>
-
-      {/* Promotions Section */}
-      <View style={{ marginTop: 16, padding: 16, backgroundColor: "#fff" }}>
         <View
           style={{
             flexDirection: "row",
@@ -61,183 +76,283 @@ const HomeScreen = () => {
             alignItems: "center",
           }}
         >
-          <FFText style={{ fontSize: 18, fontWeight: "bold" }}>
-            Promotions
-          </FFText>
-          <TouchableOpacity onPress={() => navigation.navigate("Promotions")}>
-            <Ionicons name="arrow-forward" size={24} color="#000" />
-          </TouchableOpacity>
-        </View>
-        {/* Promotion Tabs */}
-        <View style={{ flexDirection: "row", marginTop: 12 }}>
+          <View>
+            <FFText
+              style={{ fontSize: 24, fontWeight: "bold", color: "#1a1a1a" }}
+            >
+              Mon Sushi
+            </FFText>
+            <FFText style={{ fontSize: 14, color: "#666", marginTop: 4 }}>
+              87B Nguyễn Công Trứ, p.2, Bảo Lộc
+            </FFText>
+          </View>
           <TouchableOpacity
-            onPress={() => setPromotionTab("current")}
-            style={{ marginRight: 16 }}
+            style={{
+              width: 40,
+              height: 40,
+              borderRadius: 20,
+              backgroundColor: "#f8f9fa",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
           >
-            <FFText
-              style={{
-                fontSize: 16,
-                fontWeight: promotionTab === "current" ? "bold" : "normal",
-                borderBottomWidth: promotionTab === "current" ? 2 : 0,
-                borderBottomColor: "#000",
-                paddingBottom: 4,
-              }}
-            >
-              Current
-            </FFText>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => setPromotionTab("expired")}>
-            <FFText
-              style={{
-                fontSize: 16,
-                fontWeight: promotionTab === "expired" ? "bold" : "normal",
-                borderBottomWidth: promotionTab === "expired" ? 2 : 0,
-                borderBottomColor: "#000",
-                paddingBottom: 4,
-              }}
-            >
-              Expired
-            </FFText>
+            <Ionicons name="menu" size={24} color="#1a1a1a" />
           </TouchableOpacity>
         </View>
-        {/* Promotion Content */}
-        <View style={{ marginTop: 12 }}>
-          {promotionTab === "current" ? (
-            <FFText>List of current promotions goes here...</FFText>
-          ) : (
-            <FFText>List of expired promotions goes here...</FFText>
-          )}
-        </View>
-      </View>
-
-      {/* Customer Feedback Section */}
-      <View style={{ marginTop: 16, padding: 16, backgroundColor: "#fff" }}>
         <View
           style={{
+            marginTop: 12,
             flexDirection: "row",
-            justifyContent: "space-between",
             alignItems: "center",
           }}
         >
-          <FFText style={{ fontSize: 18, fontWeight: "bold" }}>
-            Customer Feedback
-          </FFText>
-          <TouchableOpacity
-            onPress={() => navigation.navigate("CustomerFeedback")}
-          >
-            <Ionicons name="arrow-forward" size={24} color="#000" />
-          </TouchableOpacity>
-        </View>
-        <View style={{ marginTop: 12 }}>
-          {/* Feedback Item 1 */}
-          <FFView
+          <View
             style={{
-              marginBottom: 8,
-              padding: 8,
-              backgroundColor: "#f9f9f9",
-              borderRadius: 8,
+              backgroundColor: "#fee2e2",
+              paddingHorizontal: 12,
+              paddingVertical: 6,
+              borderRadius: 20,
+              flexDirection: "row",
+              alignItems: "center",
             }}
           >
-            <FFText style={{ fontWeight: "bold" }}>John Doe</FFText>
-            <FFText>Great food and service!</FFText>
-          </FFView>
-          {/* Feedback Item 2 */}
-          <FFView
-            style={{
-              marginBottom: 8,
-              padding: 8,
-              backgroundColor: "#f9f9f9",
-              borderRadius: 8,
-            }}
-          >
-            <FFText style={{ fontWeight: "bold" }}>Jane Smith</FFText>
-            <FFText>The ambience was amazing!</FFText>
-          </FFView>
-          {/* Feedback Item 3 */}
-          <FFView
-            style={{ padding: 8, backgroundColor: "#f9f9f9", borderRadius: 8 }}
-          >
-            <FFText style={{ fontWeight: "bold" }}>Sam Wilson</FFText>
-            <FFText>Food was delicious but a bit pricey.</FFText>
-          </FFView>
+            <View
+              style={{
+                width: 6,
+                height: 6,
+                borderRadius: 3,
+                backgroundColor: "#ef4444",
+                marginRight: 6,
+              }}
+            />
+            <FFText style={{ color: "#ef4444", fontSize: 13 }}>
+              Đã đóng cửa
+            </FFText>
+          </View>
         </View>
       </View>
 
-      {/* Analytics Section */}
-      <View
-        style={{ marginTop: 16, padding: 16, backgroundColor: "#fff", flex: 1 }}
-      >
-        <FFText style={{ fontSize: 18, fontWeight: "bold", marginBottom: 12 }}>
-          Analytics
-        </FFText>
-        <View
+      <ScrollView showsVerticalScrollIndicator={false}>
+        {/* Daily Stats Card */}
+        <LinearGradient
+          colors={["#fff7ed", "#ffedd5"]}
           style={{
-            flexDirection: "row",
-            flexWrap: "wrap",
-            justifyContent: "space-between",
+            margin: 20,
+            borderRadius: 20,
+            padding: 20,
+            shadowColor: "#fb923c",
+            shadowOffset: { width: 0, height: 4 },
+            shadowOpacity: 0.1,
+            shadowRadius: 12,
+            elevation: 4,
           }}
         >
-          {/* Daily Sales */}
+          <View style={{ marginBottom: 16 }}>
+            <View style={{ flexDirection: "row", alignItems: "center" }}>
+              <View
+                style={{
+                  backgroundColor: "#fff",
+                  padding: 8,
+                  borderRadius: 12,
+                  marginRight: 12,
+                }}
+              >
+                <Ionicons name="stats-chart" size={20} color="#f97316" />
+              </View>
+              <View style={{ flex: 1 }}>
+                <FFText style={{ color: "#666", fontSize: 13 }}>
+                  Doanh thu ngày
+                </FFText>
+                <FFText
+                  style={{
+                    fontSize: 20,
+                    fontWeight: "bold",
+                    color: "#1a1a1a",
+                    marginTop: 2,
+                  }}
+                >
+                  {dailyStats.revenue}
+                </FFText>
+              </View>
+            </View>
+          </View>
+
           <View
             style={{
-              width: "48%",
-              backgroundColor: "#e6f7ff",
-              padding: 12,
-              borderRadius: 8,
-              marginBottom: 12,
+              flexDirection: "row",
+              borderTopWidth: 1,
+              borderTopColor: "rgba(0,0,0,0.06)",
+              paddingTop: 16,
             }}
           >
-            <FFText style={{ fontSize: 16, fontWeight: "bold" }}>
-              Daily Sales
-            </FFText>
-            <FFText>$1,200</FFText>
+            <View
+              style={{
+                flex: 1,
+                borderRightWidth: 1,
+                borderRightColor: "rgba(0,0,0,0.06)",
+              }}
+            >
+              <View style={{ flexDirection: "row", alignItems: "center" }}>
+                <View
+                  style={{
+                    backgroundColor: "#fff",
+                    padding: 8,
+                    borderRadius: 12,
+                    marginRight: 12,
+                  }}
+                >
+                  <Ionicons name="document-text" size={20} color="#f97316" />
+                </View>
+                <View>
+                  <FFText style={{ color: "#666", fontSize: 13 }}>
+                    Số đơn/ngày
+                  </FFText>
+                  <FFText
+                    style={{
+                      fontSize: 20,
+                      fontWeight: "600",
+                      color: "#1a1a1a",
+                      marginTop: 2,
+                    }}
+                  >
+                    {dailyStats.orders}
+                  </FFText>
+                </View>
+              </View>
+            </View>
+
+            <View style={{ flex: 1, paddingLeft: 16 }}>
+              <View style={{ flexDirection: "row", alignItems: "center" }}>
+                <View
+                  style={{
+                    backgroundColor: "#fff",
+                    padding: 8,
+                    borderRadius: 12,
+                    marginRight: 12,
+                  }}
+                >
+                  <Ionicons name="restaurant" size={20} color="#f97316" />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <FFText style={{ color: "#666", fontSize: 13 }}>
+                    Món bán chạy
+                  </FFText>
+                  <FFText
+                    // numberOfLines={1}
+                    style={{
+                      fontSize: 16,
+                      fontWeight: "600",
+                      color: "#1a1a1a",
+                      marginTop: 2,
+                    }}
+                  >
+                    {dailyStats.topDish}
+                  </FFText>
+                </View>
+              </View>
+            </View>
           </View>
-          {/* Revenue */}
+        </LinearGradient>
+
+        {/* Menu Grid */}
+        <View style={{ padding: 20 }}>
           <View
             style={{
-              width: "48%",
-              backgroundColor: "#fff7e6",
-              padding: 12,
-              borderRadius: 8,
-              marginBottom: 12,
+              flexDirection: "row",
+              flexWrap: "wrap",
+              justifyContent: "center",
+              gap: 12,
             }}
           >
-            <FFText style={{ fontSize: 16, fontWeight: "bold" }}>
-              Revenue
-            </FFText>
-            <FFText>$15,000</FFText>
+            {menuItems.map((item) => (
+              <TouchableOpacity
+                key={item.id}
+                style={{
+                  width: "30%",
+                  aspectRatio: 1,
+                  // flex: 1,
+                  backgroundColor: "#fff",
+                  borderRadius: 16,
+                  padding: 12,
+                  justifyContent: "center",
+                  alignItems: "center",
+                  shadowColor: "#000",
+                  shadowOffset: { width: 0, height: 2 },
+                  shadowOpacity: 0.05,
+                  shadowRadius: 8,
+                  elevation: 2,
+                }}
+              >
+                <View
+                  style={{
+                    backgroundColor: "#f8f9fa",
+                    padding: 10,
+                    borderRadius: 12,
+                    marginBottom: 8,
+                  }}
+                >
+                  <Ionicons name={item.icon as any} size={24} color="#f97316" />
+                </View>
+                <FFText
+                  style={{
+                    fontSize: 12,
+                    textAlign: "center",
+                    color: "#1a1a1a",
+                    fontWeight: "500",
+                  }}
+                >
+                  {item.label}
+                </FFText>
+              </TouchableOpacity>
+            ))}
           </View>
-          {/* Profit */}
-          <View
-            style={{
-              width: "48%",
-              backgroundColor: "#e6ffe6",
-              padding: 12,
-              borderRadius: 8,
-              marginBottom: 12,
-            }}
-          >
-            <FFText style={{ fontSize: 16, fontWeight: "bold" }}>Profit</FFText>
-            <FFText>$3,500</FFText>
-          </View>
-          {/* Most Popular Item */}
-          <View
-            style={{
-              width: "48%",
-              backgroundColor: "#ffe6f7",
-              padding: 12,
-              borderRadius: 8,
-              marginBottom: 12,
-            }}
-          >
-            <FFText style={{ fontSize: 16, fontWeight: "bold" }}>
-              Popular Item
-            </FFText>
-            <FFText>Cheeseburger</FFText>
-          </View>
-          {/* Add more analytics items as needed */}
         </View>
-      </View>
+
+        {/* Promotions Section */}
+        <View style={{ padding: 20 }}>
+          <FFText
+            style={{
+              fontSize: 20,
+              fontWeight: "bold",
+              // marginBottom: 100,
+              color: "#1a1a1a",
+            }}
+          >
+            Những khuyến mãi hiện có
+          </FFText>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ gap: 16 }}
+          >
+            {/* Example Promotion Card */}
+            <View
+              style={{
+                width: 280,
+                height: 160,
+                borderRadius: 20,
+                overflow: "hidden",
+              }}
+            >
+              <LinearGradient
+                colors={["#fef3c7", "#fde68a"]}
+                style={{
+                  flex: 1,
+                  padding: 16,
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <FFText
+                  style={{ fontSize: 18, fontWeight: "bold", color: "#92400e" }}
+                >
+                  Khuyến mãi mới
+                </FFText>
+              </LinearGradient>
+            </View>
+          </ScrollView>
+        </View>
+      </ScrollView>
     </FFSafeAreaView>
   );
 };

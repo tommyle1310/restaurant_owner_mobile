@@ -132,6 +132,7 @@ const MainStackScreen = () => {
     if (orders.length > 0) {
       const order = orders[orders.length - 1] as unknown as Order;
       let buildLatestOrder = {
+        _id: order._id,
         customer_id: order.customer_id,
         restaurant_id: order.restaurant_id,
         total_amount: order.total_amount,
@@ -162,9 +163,13 @@ const MainStackScreen = () => {
   });
 
   const handleAcceptOrder = async () => {
+    console.log("check cu id", latestOrder?.customer_id);
     const requestBody = {
       availableDrivers: nearbyDrivers,
-      orderDetails: latestOrder,
+      orderDetails: {
+        ...latestOrder,
+        customer_id: latestOrder?.customer_id, // Ensure customer_id is included
+      },
     };
     // Emit the event to the backend via WebSocket
     socket.emit("restaurantAcceptWithAvailableDrivers", requestBody);
