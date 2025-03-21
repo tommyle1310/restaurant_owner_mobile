@@ -1,16 +1,20 @@
 // filepath: /path/to/your/project/src/services/socket.js
 import io from "socket.io-client";
+import { BACKEND_URL } from "../utils/constants";
 
-const socket = io(
-  "https://749d-2405-4800-5716-1560-9c63-5a12-7754-c175.ngrok-free.app/restaurant"
-); // Replace with your backend URL
+const socket = io(`${BACKEND_URL}/restaurant`); // Replace with your backend URL
 
 socket.on("connect", () => {
   // console.log("Connected to WebSocket server");
 });
 
 socket.on("incomingOrder", (order) => {
-  // console.log("New order received:", order);
+  console.log("New order received:", order);
+  // Handle the incoming order notification
+});
+
+socket.on("orderStatusUpdated", (order) => {
+  // console.log("orderStatusUpdated received:", order);
   // Handle the incoming order notification
 });
 

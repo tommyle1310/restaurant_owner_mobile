@@ -17,6 +17,14 @@ import FFText from "@/src/components/FFText";
 import FFInputControl from "@/src/components/FFInputControl";
 import { logout } from "@/src/store/authSlice";
 import { useDispatch } from "@/src/store/types";
+import { useNavigation } from "@react-navigation/native";
+import { StackNavigationProp } from "@react-navigation/stack";
+import { RootStackParamList } from "@/src/navigation/AppNavigator";
+
+type SettingScreenNavigationProps = StackNavigationProp<
+  RootStackParamList,
+  "Main"
+>;
 
 const SettingsScreen = () => {
   const dispatch = useDispatch();
@@ -25,7 +33,7 @@ const SettingsScreen = () => {
   const [contact, setContact] = useState("0123456789");
   const [avatar, setAvatar] = useState<string | null>(null);
   const [isOpenmodal, setIsOpenModal] = useState(false);
-
+  const navigation = useNavigation<SettingScreenNavigationProps>();
   const handleSelectAvatar = async () => {
     const permissionResult =
       await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -97,6 +105,7 @@ const SettingsScreen = () => {
         className="mt-4 w-full "
         onPress={() => {
           dispatch(logout());
+          navigation.navigate("Auth");
         }}
       >
         logout

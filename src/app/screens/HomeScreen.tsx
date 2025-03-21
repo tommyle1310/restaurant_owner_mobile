@@ -8,6 +8,9 @@ import FFSafeAreaView from "@/src/components/FFSafeAreaView";
 import FFText from "@/src/components/FFText";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { MainStackParamList } from "@/src/navigation/AppNavigator";
+import { useSelector } from "@/src/store/types";
+import { RootState } from "@/src/store/store";
+import FFAvatar from "@/src/components/FFAvatar";
 
 type HomeNavigationProps = StackNavigationProp<
   MainStackParamList,
@@ -16,8 +19,9 @@ type HomeNavigationProps = StackNavigationProp<
 
 const HomeScreen = () => {
   const navigation = useNavigation<HomeNavigationProps>();
-  const [promotionTab, setPromotionTab] = useState<"current" | "expired">(
-    "current"
+
+  const { address, restaurant_name, avatar, status } = useSelector(
+    (state: RootState) => state.auth
   );
 
   // Function to return a greeting based on current hour.
@@ -28,13 +32,11 @@ const HomeScreen = () => {
     return "Good evening";
   };
 
-  const restaurantName = "Restaurant ABC";
-
   // Daily stats section data
   const dailyStats = {
-    revenue: "0đ",
-    orders: "Chưa có đơn",
-    topDish: "Món bán chạy nhất hôm nay",
+    revenue: 10,
+    orders: "10",
+    topDish: "Com Dai",
   };
 
   // Menu grid items
@@ -43,7 +45,12 @@ const HomeScreen = () => {
     { id: 2, icon: "time", label: "Lịch sử" },
     { id: 3, icon: "document-text", label: "Thực đơn" },
     { id: 4, icon: "star", label: "Đánh giá" },
-    { id: 5, icon: "pricetag", label: "Khuyến mãi" },
+    {
+      id: 5,
+      icon: "pricetag",
+      label: "Khuyến mãi",
+      onPress: () => navigation.navigate("Promotions"),
+    },
     { id: 6, icon: "wallet", label: "Ví" },
     { id: 7, icon: "bulb", label: "Marketing" },
     { id: 8, icon: "megaphone", label: "Quảng cáo" },
@@ -76,28 +83,17 @@ const HomeScreen = () => {
             alignItems: "center",
           }}
         >
-          <View>
+          <View style={{ width: "70%" }}>
             <FFText
               style={{ fontSize: 24, fontWeight: "bold", color: "#1a1a1a" }}
             >
-              Mon Sushi
+              {restaurant_name}
             </FFText>
             <FFText style={{ fontSize: 14, color: "#666", marginTop: 4 }}>
-              87B Nguyễn Công Trứ, p.2, Bảo Lộc
+              {address?.street}, {address?.city}, {address?.nationality}
             </FFText>
           </View>
-          <TouchableOpacity
-            style={{
-              width: 40,
-              height: 40,
-              borderRadius: 20,
-              backgroundColor: "#f8f9fa",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            <Ionicons name="menu" size={24} color="#1a1a1a" />
-          </TouchableOpacity>
+          <FFAvatar size={40} avatar={avatar?.url} />
         </View>
         <View
           style={{
@@ -108,7 +104,7 @@ const HomeScreen = () => {
         >
           <View
             style={{
-              backgroundColor: "#fee2e2",
+              backgroundColor: status?.is_open ? "#dcfce7" : "#fee2e2",
               paddingHorizontal: 12,
               paddingVertical: 6,
               borderRadius: 20,
@@ -121,12 +117,17 @@ const HomeScreen = () => {
                 width: 6,
                 height: 6,
                 borderRadius: 3,
-                backgroundColor: "#ef4444",
+                backgroundColor: status?.is_open ? "#22c55e" : "#ef4444",
                 marginRight: 6,
               }}
             />
-            <FFText style={{ color: "#ef4444", fontSize: 13 }}>
-              Đã đóng cửa
+            <FFText
+              style={{
+                color: status?.is_open ? "#22c55e" : "#ef4444",
+                fontSize: 13,
+              }}
+            >
+              {status?.is_open ? "Opening" : "Closed"}
             </FFText>
           </View>
         </View>
@@ -135,7 +136,7 @@ const HomeScreen = () => {
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* Daily Stats Card */}
         <LinearGradient
-          colors={["#fff7ed", "#ffedd5"]}
+          colors={["#a3d98f", "#3e7c2a"]}
           style={{
             margin: 20,
             borderRadius: 20,
@@ -147,6 +148,7 @@ const HomeScreen = () => {
             elevation: 4,
           }}
         >
+          {/* First Row */}
           <View style={{ marginBottom: 16 }}>
             <View style={{ flexDirection: "row", alignItems: "center" }}>
               <View
@@ -160,102 +162,100 @@ const HomeScreen = () => {
                 <Ionicons name="stats-chart" size={20} color="#f97316" />
               </View>
               <View style={{ flex: 1 }}>
-                <FFText style={{ color: "#666", fontSize: 13 }}>
-                  Doanh thu ngày
+                <FFText style={{ color: "#eee", fontSize: 13 }}>
+                  Today's Revenue
                 </FFText>
                 <FFText
                   style={{
                     fontSize: 20,
                     fontWeight: "bold",
-                    color: "#1a1a1a",
+                    color: "#fff",
                     marginTop: 2,
                   }}
                 >
-                  {dailyStats.revenue}
+                  ${dailyStats.revenue}
                 </FFText>
               </View>
             </View>
           </View>
 
+          {/* Divider */}
           <View
             style={{
-              flexDirection: "row",
-              borderTopWidth: 1,
-              borderTopColor: "rgba(0,0,0,0.06)",
-              paddingTop: 16,
+              borderBottomWidth: 1,
+              borderBottomColor: "rgba(0,0,0,0.06)",
+              marginBottom: 16,
             }}
-          >
-            <View
-              style={{
-                flex: 1,
-                borderRightWidth: 1,
-                borderRightColor: "rgba(0,0,0,0.06)",
-              }}
-            >
-              <View style={{ flexDirection: "row", alignItems: "center" }}>
-                <View
+          />
+
+          {/* Second Row */}
+          <View style={{ marginBottom: 16 }}>
+            <View style={{ flexDirection: "row", alignItems: "center" }}>
+              <View
+                style={{
+                  backgroundColor: "#fff",
+                  padding: 8,
+                  borderRadius: 12,
+                  marginRight: 12,
+                }}
+              >
+                <Ionicons name="document-text" size={20} color="#f97316" />
+              </View>
+              <View style={{ flex: 1 }}>
+                <FFText style={{ color: "#eee" }}>Số đơn/ngày</FFText>
+                <FFText
                   style={{
-                    backgroundColor: "#fff",
-                    padding: 8,
-                    borderRadius: 12,
-                    marginRight: 12,
+                    fontWeight: "600",
+                    color: "#fff",
+                    marginTop: 2,
                   }}
                 >
-                  <Ionicons name="document-text" size={20} color="#f97316" />
-                </View>
-                <View>
-                  <FFText style={{ color: "#666", fontSize: 13 }}>
-                    Số đơn/ngày
-                  </FFText>
-                  <FFText
-                    style={{
-                      fontSize: 20,
-                      fontWeight: "600",
-                      color: "#1a1a1a",
-                      marginTop: 2,
-                    }}
-                  >
-                    {dailyStats.orders}
-                  </FFText>
-                </View>
+                  {dailyStats.orders}
+                </FFText>
               </View>
             </View>
+          </View>
 
-            <View style={{ flex: 1, paddingLeft: 16 }}>
-              <View style={{ flexDirection: "row", alignItems: "center" }}>
-                <View
+          {/* Divider */}
+          <View
+            style={{
+              borderBottomWidth: 1,
+              borderBottomColor: "rgba(0,0,0,0.06)",
+              marginBottom: 16,
+            }}
+          />
+
+          {/* Third Row */}
+          <View>
+            <View style={{ flexDirection: "row", alignItems: "center" }}>
+              <View
+                style={{
+                  backgroundColor: "#fff",
+                  padding: 8,
+                  borderRadius: 12,
+                  marginRight: 12,
+                }}
+              >
+                <Ionicons name="restaurant" size={20} color="#f97316" />
+              </View>
+              <View style={{ flex: 1 }}>
+                <FFText style={{ color: "#eee" }}>Món bán chạy</FFText>
+                <FFText
                   style={{
-                    backgroundColor: "#fff",
-                    padding: 8,
-                    borderRadius: 12,
-                    marginRight: 12,
+                    fontWeight: "600",
+                    color: "#fff",
+                    marginTop: 2,
                   }}
                 >
-                  <Ionicons name="restaurant" size={20} color="#f97316" />
-                </View>
-                <View style={{ flex: 1 }}>
-                  <FFText style={{ color: "#666", fontSize: 13 }}>
-                    Món bán chạy
-                  </FFText>
-                  <FFText
-                    // numberOfLines={1}
-                    style={{
-                      fontSize: 16,
-                      fontWeight: "600",
-                      color: "#1a1a1a",
-                      marginTop: 2,
-                    }}
-                  >
-                    {dailyStats.topDish}
-                  </FFText>
-                </View>
+                  {dailyStats.topDish}
+                </FFText>
               </View>
             </View>
           </View>
         </LinearGradient>
 
         {/* Menu Grid */}
-        <View style={{ padding: 20 }}>
+        <View style={{ padding: 20, paddingBottom: 100 }}>
           <View
             style={{
               flexDirection: "row",
@@ -282,6 +282,7 @@ const HomeScreen = () => {
                   shadowRadius: 8,
                   elevation: 2,
                 }}
+                onPress={item.onPress}
               >
                 <View
                   style={{
@@ -306,51 +307,6 @@ const HomeScreen = () => {
               </TouchableOpacity>
             ))}
           </View>
-        </View>
-
-        {/* Promotions Section */}
-        <View style={{ padding: 20 }}>
-          <FFText
-            style={{
-              fontSize: 20,
-              fontWeight: "bold",
-              // marginBottom: 100,
-              color: "#1a1a1a",
-            }}
-          >
-            Những khuyến mãi hiện có
-          </FFText>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ gap: 16 }}
-          >
-            {/* Example Promotion Card */}
-            <View
-              style={{
-                width: 280,
-                height: 160,
-                borderRadius: 20,
-                overflow: "hidden",
-              }}
-            >
-              <LinearGradient
-                colors={["#fef3c7", "#fde68a"]}
-                style={{
-                  flex: 1,
-                  padding: 16,
-                  justifyContent: "center",
-                  alignItems: "center",
-                }}
-              >
-                <FFText
-                  style={{ fontSize: 18, fontWeight: "bold", color: "#92400e" }}
-                >
-                  Khuyến mãi mới
-                </FFText>
-              </LinearGradient>
-            </View>
-          </ScrollView>
         </View>
       </ScrollView>
     </FFSafeAreaView>

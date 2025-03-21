@@ -27,7 +27,7 @@ import * as Notifications from "expo-notifications";
 
 // Import your custom FFBottomTab
 import FFBottomTab from "../components/FFBottomTab";
-import PromotionManagement from "../app/screens/PromotionList";
+import PromotionManagement from "../app/screens/PromotionScreen";
 import CustomerFeedback from "../app/screens/CustomerFeedback";
 import useSearchNearbyDrivers from "../hooks/useSearchNearbyDrivers";
 import { useSocket } from "../hooks/useSocket";
@@ -111,9 +111,11 @@ const MainStackScreen = () => {
     lat: 10.826411,
     lng: 106.617353,
   });
-  const [latestOrder, setLatestOrder] = useState<Order | null>(null);
   const { restaurant_id } = useSelector((state: RootState) => state.auth);
   const { expoPushToken } = usePushNotifications();
+  const [latestOrder, setLatestOrder] =
+    useState<Type_PushNotification_Order | null>(null);
+  const [isShowToast, setIsShowToast] = useState(false); // Đổi tên để rõ ràng hơn
 
   const [orders, setOrders] = useState<Type_PushNotification_Order[]>([]);
   const [isShowIncomingOrderToast, setIsShowIncomingOrderToast] =
@@ -145,16 +147,21 @@ const MainStackScreen = () => {
         status: order.status,
         order_time: order.order_time,
         tracking_info: order.tracking_info,
-      };
+      } as any;
       setLatestOrder(buildLatestOrder);
     }
   }, [orders]);
   let pushToken = expoPushToken as unknown as { data: string };
-  useSocket(restaurant_id || "", setOrders, () =>
-    sendPushNotification({
-      order: orders[orders.length - 1],
-      expoPushToken: pushToken,
-    })
+  useSocket(
+    restaurant_id || "",
+    setOrders,
+    () =>
+      sendPushNotification({
+        order: orders[orders.length - 1],
+        expoPushToken: pushToken,
+      }),
+    setLatestOrder,
+    setIsShowToast // Truyền setter cho toast
   );
   const { nearbyDrivers, allDrivers } = useSearchNearbyDrivers({
     selectedLocation,
@@ -163,9 +170,8 @@ const MainStackScreen = () => {
   });
 
   const handleAcceptOrder = async () => {
-    console.log("check cu id", latestOrder?.customer_id);
     const requestBody = {
-      availableDrivers: nearbyDrivers,
+      availableDrivers: allDrivers,
       orderDetails: {
         ...latestOrder,
         customer_id: latestOrder?.customer_id, // Ensure customer_id is included
@@ -215,7 +221,7 @@ const MainStackScreen = () => {
           </View>
           <View className="flex-row items-center gap-1">
             <FFText fontSize="sm" fontWeight="600">
-              {latestOrder?.order_items.length}
+              {latestOrder?.order_items?.length || 0}
             </FFText>
             <FFText fontSize="sm" fontWeight="500" style={{ color: "#63c550" }}>
               items
@@ -245,12 +251,18 @@ const AuthStackScreen = () => (
 
 const AppNavigator = () => {
   const token = useSelector((state: RootState) => state.auth.accessToken);
+
   return (
     <RootStack.Navigator>
       <RootStack.Screen
-        name={token ? "Main" : "Auth"}
+        name={"Auth"}
         options={{ headerShown: false }}
-        component={token ? MainStackScreen : AuthStackScreen}
+        component={AuthStackScreen}
+      />
+      <RootStack.Screen
+        name={"Main"}
+        options={{ headerShown: false }}
+        component={MainStackScreen}
       />
     </RootStack.Navigator>
   );

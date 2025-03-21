@@ -1,203 +1,299 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
+// Định nghĩa các interface
+interface Address {
+  id: string;
+  street: string;
+  city: string;
+  nationality: string;
+  is_default: boolean;
+  created_at: number;
+  updated_at: number;
+  postal_code: number;
+  location: {
+    lat: number;
+    lon: number;
+  };
+  title: string;
+}
+
+interface ContactEmail {
+  email: string;
+  title: string;
+  is_default: boolean;
+}
+
+interface ContactPhone {
+  title: string;
+  number: string;
+  is_default: boolean;
+}
+
+interface Avatar {
+  key: string;
+  url: string;
+}
+
+interface Status {
+  is_open: boolean;
+  is_active: boolean;
+  is_accepted_orders: boolean;
+}
+
+interface OpeningHours {
+  fri: { to: number; from: number };
+  mon: { to: number; from: number };
+  sat: { to: number; from: number };
+  sun: { to: number; from: number };
+  thu: { to: number; from: number };
+  tue: { to: number; from: number };
+  wed: { to: number; from: number };
+}
+
+export interface Promotion {
+  id: string;
+  name: string;
+  description: string;
+  start_date: string;
+  end_date: string;
+  discount_type: string;
+  discount_value: string;
+  promotion_cost_price: string;
+  minimum_order_value: string;
+  avatar: Avatar | null;
+  status: string;
+  bogo_details: any | null;
+  created_at: string;
+  updated_at: string;
+}
+
+interface SpecializeIn {
+  id: string;
+  name: string;
+  description: string;
+  avatar: Avatar | null;
+  created_at: number;
+  updated_at: number;
+}
+
 interface AuthState {
   accessToken: string | null;
   user_id: string | null;
   email: string | null;
   user_type: string[] | null;
+  first_name: string | null;
+  last_name: string | null;
   app_preferences: object | null;
+  id: string | null;
+  logged_in_as: string | null;
   owner_id: string | null;
+  owner_name: string | null;
   restaurant_id: string | null;
-  address: string | null;
+  address: Address | null;
   restaurant_name: string | null;
-  contact_email: Array<{
-    title: string;
-    is_default: boolean;
-    email: string;
-    _id: string;
-  }> | null;
-  contact_phone: string[] | null;
-  avatar: {
-    url: string;
-    key: string;
-  } | null;
-  images_gallery: string[] | null;
-  status: {
-    is_open: boolean;
-    is_active: boolean;
-    is_accepted_orders: boolean;
-  } | null;
-  promotions: string[] | null;
+  contact_email: ContactEmail[] | null;
+  contact_phone: ContactPhone[] | null;
+  created_at: number | null;
+  updated_at: number | null;
+  avatar: Avatar | null;
+  images_gallery: any[] | null;
+  status: Status | null;
+  promotions: Promotion[] | null; // Thêm promotions
   ratings: object | null;
-  specialize_in: string[] | null;
-  opening_hours: {
-    mon: object;
-    tue: object;
-    wed: object;
-    thu: object;
-    fri: object;
-    sat: object;
-    sun: object;
-  } | null;
+  specialize_in: SpecializeIn[] | null;
+  opening_hours: OpeningHours | null;
+  iat: number | null;
+  exp: number | null;
 }
 
-// Initialize the state
+// Initial state
 const initialState: AuthState = {
-  user_id: null,
-  restaurant_id: null,
   accessToken: null,
-
+  user_id: null,
   email: null,
   user_type: null,
-  app_preferences: {},
+  first_name: null,
+  last_name: null,
+  app_preferences: null,
+  id: null,
+  logged_in_as: null,
   owner_id: null,
+  owner_name: null,
+  restaurant_id: null,
   address: null,
   restaurant_name: null,
-  contact_email: [],
-  contact_phone: [],
+  contact_email: null,
+  contact_phone: null,
+  created_at: null,
+  updated_at: null,
   avatar: null,
-  images_gallery: [],
+  images_gallery: null,
   status: null,
-  promotions: [],
-  ratings: {},
-  specialize_in: [],
-  opening_hours: {
-    mon: {},
-    tue: {},
-    wed: {},
-    thu: {},
-    fri: {},
-    sat: {},
-    sun: {},
-  },
+  promotions: null, // Khởi tạo promotions
+  ratings: null,
+  specialize_in: null,
+  opening_hours: null,
+  iat: null,
+  exp: null,
 };
 
+// Load token từ AsyncStorage
 export const loadTokenFromAsyncStorage = createAsyncThunk(
   "auth/loadToken",
   async () => {
-    const user_id = await AsyncStorage.getItem("user_id");
-    const restaurant_id = await AsyncStorage.getItem("restaurant_id");
-    const accessToken = await AsyncStorage.getItem("accessToken");
-    const email = await AsyncStorage.getItem("email");
-    const user_type = await AsyncStorage.getItem("user_type");
-    const app_preferences = await AsyncStorage.getItem("app_preferences");
-    const owner_id = await AsyncStorage.getItem("owner_id");
-    const address = await AsyncStorage.getItem("address");
-    const restaurant_name = await AsyncStorage.getItem("restaurant_name");
-    const contact_email = await AsyncStorage.getItem("contact_email");
-    const contact_phone = await AsyncStorage.getItem("contact_phone");
-    const created_at = await AsyncStorage.getItem("created_at");
-    const updated_at = await AsyncStorage.getItem("updated_at");
-    const avatar = await AsyncStorage.getItem("avatar");
-    const images_gallery = await AsyncStorage.getItem("images_gallery");
-    const status = await AsyncStorage.getItem("status");
-    const promotions = await AsyncStorage.getItem("promotions");
-    const ratings = await AsyncStorage.getItem("ratings");
-    const specialize_in = await AsyncStorage.getItem("specialize_in");
-    const opening_hours = await AsyncStorage.getItem("opening_hours");
+    const keys = [
+      "accessToken",
+      "user_id",
+      "email",
+      "user_type",
+      "first_name",
+      "last_name",
+      "app_preferences",
+      "id",
+      "logged_in_as",
+      "owner_id",
+      "owner_name",
+      "restaurant_id",
+      "address",
+      "restaurant_name",
+      "contact_email",
+      "contact_phone",
+      "created_at",
+      "updated_at",
+      "avatar",
+      "images_gallery",
+      "status",
+      "promotions", // Thêm promotions
+      "ratings",
+      "specialize_in",
+      "opening_hours",
+      "iat",
+      "exp",
+    ];
+    const values = await Promise.all(
+      keys.map((key) => AsyncStorage.getItem(key))
+    );
+    const result = Object.fromEntries(keys.map((key, i) => [key, values[i]]));
 
     return {
-      user_id,
-      restaurant_id,
-      email,
-      user_type: user_type ? JSON.parse(user_type) : [],
-      app_preferences: app_preferences ? JSON.parse(app_preferences) : {},
-      owner_id,
-      accessToken,
-      address,
-      restaurant_name,
-      contact_email: contact_email ? JSON.parse(contact_email) : [],
-      contact_phone: contact_phone ? JSON.parse(contact_phone) : [],
-      created_at: created_at ? Number(created_at) : null,
-      updated_at: updated_at ? Number(updated_at) : null,
-      avatar: avatar ? JSON.parse(avatar) : null,
-      images_gallery: images_gallery ? JSON.parse(images_gallery) : [],
-      status: status ? JSON.parse(status) : null,
-      promotions: promotions ? JSON.parse(promotions) : [],
-      ratings: ratings ? JSON.parse(ratings) : {},
-      specialize_in: specialize_in ? JSON.parse(specialize_in) : [],
-      opening_hours: opening_hours
-        ? JSON.parse(opening_hours)
-        : {
-            mon: {},
-            tue: {},
-            wed: {},
-            thu: {},
-            fri: {},
-            sat: {},
-            sun: {},
-          },
+      accessToken: result.accessToken || null,
+      user_id: result.user_id || null,
+      email: result.email || null,
+      user_type: result.user_type ? JSON.parse(result.user_type) : null,
+      first_name: result.first_name || null,
+      last_name: result.last_name || null,
+      app_preferences: result.app_preferences
+        ? JSON.parse(result.app_preferences)
+        : null,
+      id: result.id || null,
+      logged_in_as: result.logged_in_as || null,
+      owner_id: result.owner_id || null,
+      owner_name: result.owner_name || null,
+      restaurant_id: result.restaurant_id || null,
+      address: result.address ? JSON.parse(result.address) : null,
+      restaurant_name: result.restaurant_name || null,
+      contact_email: result.contact_email
+        ? JSON.parse(result.contact_email)
+        : null,
+      contact_phone: result.contact_phone
+        ? JSON.parse(result.contact_phone)
+        : null,
+      created_at: result.created_at ? Number(result.created_at) : null,
+      updated_at: result.updated_at ? Number(result.updated_at) : null,
+      avatar: result.avatar ? JSON.parse(result.avatar) : null,
+      images_gallery: result.images_gallery
+        ? JSON.parse(result.images_gallery)
+        : null,
+      status: result.status ? JSON.parse(result.status) : null,
+      promotions: result.promotions ? JSON.parse(result.promotions) : null, // Parse promotions
+      ratings: result.ratings ? JSON.parse(result.ratings) : null,
+      specialize_in: result.specialize_in
+        ? JSON.parse(result.specialize_in)
+        : null,
+      opening_hours: result.opening_hours
+        ? JSON.parse(result.opening_hours)
+        : null,
+      iat: result.iat ? Number(result.iat) : null,
+      exp: result.exp ? Number(result.exp) : null,
     };
   }
 );
 
+// Save token vào AsyncStorage
 export const saveTokenToAsyncStorage = createAsyncThunk(
   "auth/saveToken",
   async (data: AuthState) => {
-    await AsyncStorage.setItem("user_id", data.user_id!);
-    await AsyncStorage.setItem("restaurant_id", data.restaurant_id!);
-    await AsyncStorage.setItem("accessToken", data.accessToken!);
-    await AsyncStorage.setItem("email", data.email!);
-    await AsyncStorage.setItem("user_type", JSON.stringify(data.user_type));
-    await AsyncStorage.setItem(
-      "app_preferences",
-      JSON.stringify(data.app_preferences)
+    const entries = [
+      ["accessToken", data.accessToken || ""],
+      ["user_id", data.user_id || ""],
+      ["email", data.email || ""],
+      ["user_type", JSON.stringify(data.user_type || [])],
+      ["first_name", data.first_name || ""],
+      ["last_name", data.last_name || ""],
+      ["app_preferences", JSON.stringify(data.app_preferences || null)],
+      ["id", data.id || ""],
+      ["logged_in_as", data.logged_in_as || ""],
+      ["owner_id", data.owner_id || ""],
+      ["owner_name", data.owner_name || ""],
+      ["restaurant_id", data.restaurant_id || ""],
+      ["address", JSON.stringify(data.address || null)],
+      ["restaurant_name", data.restaurant_name || ""],
+      ["contact_email", JSON.stringify(data.contact_email || [])],
+      ["contact_phone", JSON.stringify(data.contact_phone || [])],
+      ["created_at", data.created_at?.toString() || ""],
+      ["updated_at", data.updated_at?.toString() || ""],
+      ["avatar", JSON.stringify(data.avatar || null)],
+      ["images_gallery", JSON.stringify(data.images_gallery || null)],
+      ["status", JSON.stringify(data.status || null)],
+      ["promotions", JSON.stringify(data.promotions || null)], // Stringify promotions
+      ["ratings", JSON.stringify(data.ratings || null)],
+      ["specialize_in", JSON.stringify(data.specialize_in || [])],
+      ["opening_hours", JSON.stringify(data.opening_hours || null)],
+      ["iat", data.iat?.toString() || ""],
+      ["exp", data.exp?.toString() || ""],
+    ];
+    await Promise.all(
+      entries.map(([key, value]) => AsyncStorage.setItem(key, value))
     );
-    await AsyncStorage.setItem("owner_id", data.owner_id!);
-    await AsyncStorage.setItem("address", data.address!);
-    await AsyncStorage.setItem("restaurant_name", data.restaurant_name!);
-    await AsyncStorage.setItem(
-      "contact_email",
-      JSON.stringify(data.contact_email)
-    );
-    await AsyncStorage.setItem(
-      "contact_phone",
-      JSON.stringify(data.contact_phone)
-    );
-    await AsyncStorage.setItem("avatar", JSON.stringify(data.avatar));
-    await AsyncStorage.setItem(
-      "images_gallery",
-      JSON.stringify(data.images_gallery)
-    );
-    await AsyncStorage.setItem("status", JSON.stringify(data.status));
-    await AsyncStorage.setItem("promotions", JSON.stringify(data.promotions));
-    await AsyncStorage.setItem("ratings", JSON.stringify(data.ratings));
-    await AsyncStorage.setItem(
-      "specialize_in",
-      JSON.stringify(data.specialize_in)
-    );
-    await AsyncStorage.setItem(
-      "opening_hours",
-      JSON.stringify(data.opening_hours)
-    );
-
     return data;
   }
 );
 
+// Logout
 export const logout = createAsyncThunk(
   "auth/logout",
   async (_, { dispatch }) => {
-    await AsyncStorage.removeItem("user_id");
-    await AsyncStorage.removeItem("restaurant_id");
-    await AsyncStorage.removeItem("email");
-    await AsyncStorage.removeItem("accessToken");
-    await AsyncStorage.removeItem("user_type");
-    await AsyncStorage.removeItem("app_preferences");
-    await AsyncStorage.removeItem("owner_id");
-    await AsyncStorage.removeItem("address");
-    await AsyncStorage.removeItem("restaurant_name");
-    await AsyncStorage.removeItem("contact_email");
-    await AsyncStorage.removeItem("contact_phone");
-    await AsyncStorage.removeItem("avatar");
-    await AsyncStorage.removeItem("images_gallery");
-    await AsyncStorage.removeItem("status");
-    await AsyncStorage.removeItem("promotions");
-    await AsyncStorage.removeItem("ratings");
-    await AsyncStorage.removeItem("specialize_in");
-    await AsyncStorage.removeItem("opening_hours");
-
+    const keys = [
+      "accessToken",
+      "user_id",
+      "email",
+      "user_type",
+      "first_name",
+      "last_name",
+      "app_preferences",
+      "id",
+      "logged_in_as",
+      "owner_id",
+      "owner_name",
+      "restaurant_id",
+      "address",
+      "restaurant_name",
+      "contact_email",
+      "contact_phone",
+      "created_at",
+      "updated_at",
+      "avatar",
+      "images_gallery",
+      "status",
+      "promotions", // Thêm promotions
+      "ratings",
+      "specialize_in",
+      "opening_hours",
+      "iat",
+      "exp",
+    ];
+    await Promise.all(keys.map((key) => AsyncStorage.removeItem(key)));
     dispatch(clearAuthState());
   }
 );
@@ -207,194 +303,21 @@ const authSlice = createSlice({
   initialState,
   reducers: {
     setAuthState: (state, action) => {
-      const {
-        user_id,
-        restaurant_id,
-        email,
-        accessToken,
-        user_type,
-        app_preferences,
-        owner_id,
-        address,
-        restaurant_name,
-        contact_email,
-        contact_phone,
-        created_at,
-        updated_at,
-        avatar,
-        images_gallery,
-        status,
-        promotions,
-        ratings,
-        specialize_in,
-        opening_hours,
-        iat,
-        exp,
-      } = action.payload;
-      state.user_id = user_id;
-      state.email = email;
-      state.user_type = user_type;
-      state.restaurant_id = restaurant_id;
-      state.accessToken = accessToken;
-      state.app_preferences = app_preferences;
-      state.owner_id = owner_id;
-      state.address = address;
-      state.restaurant_name = restaurant_name;
-      state.contact_email = contact_email;
-      state.contact_phone = contact_phone;
-      state.avatar = avatar;
-      state.images_gallery = images_gallery;
-      state.status = status;
-      state.promotions = promotions;
-      state.ratings = ratings;
-      state.specialize_in = specialize_in;
-      state.opening_hours = opening_hours;
+      return { ...state, ...action.payload };
     },
-
-    clearAuthState: (state) => {
-      state.user_id = null;
-      state.email = null;
-      state.accessToken = null;
-      state.restaurant_id = null;
-      state.user_type = [];
-      state.app_preferences = {};
-      state.owner_id = null;
-      state.address = null;
-      state.restaurant_name = null;
-      state.contact_email = [];
-      state.contact_phone = [];
-      state.avatar = null;
-      state.images_gallery = [];
-      state.status = null;
-      state.promotions = [];
-      state.ratings = {};
-      state.specialize_in = [];
-      state.opening_hours = {
-        mon: {},
-        tue: {},
-        wed: {},
-        thu: {},
-        fri: {},
-        sat: {},
-        sun: {},
-      };
-    },
+    clearAuthState: () => initialState,
   },
   extraReducers: (builder) => {
     builder
       .addCase(loadTokenFromAsyncStorage.fulfilled, (state, action) => {
-        const {
-          user_id,
-          restaurant_id,
-          email,
-          user_type,
-          app_preferences,
-          owner_id,
-          accessToken,
-          address,
-          restaurant_name,
-          contact_email,
-          contact_phone,
-          avatar,
-          images_gallery,
-          status,
-          promotions,
-          ratings,
-          specialize_in,
-          opening_hours,
-        } = action.payload;
-
-        state.user_id = user_id;
-        state.email = email;
-        state.user_type = user_type;
-        state.restaurant_id = restaurant_id;
-        state.app_preferences = app_preferences;
-        state.accessToken = accessToken;
-        state.owner_id = owner_id;
-        state.address = address;
-        state.restaurant_name = restaurant_name;
-        state.contact_email = contact_email;
-        state.contact_phone = contact_phone;
-        state.avatar = avatar;
-        state.images_gallery = images_gallery;
-        state.status = status;
-        state.promotions = promotions;
-        state.ratings = ratings;
-        state.specialize_in = specialize_in;
-        state.opening_hours = opening_hours;
+        return { ...state, ...action.payload };
       })
       .addCase(saveTokenToAsyncStorage.fulfilled, (state, action) => {
-        const {
-          user_id,
-          email,
-          user_type,
-          restaurant_id,
-          app_preferences,
-          owner_id,
-          accessToken,
-          address,
-          restaurant_name,
-          contact_email,
-          contact_phone,
-          avatar,
-          images_gallery,
-          status,
-          promotions,
-          ratings,
-          specialize_in,
-          opening_hours,
-        } = action.payload;
-
-        state.user_id = user_id;
-        state.email = email;
-        state.user_type = user_type;
-        state.restaurant_id = restaurant_id;
-        state.accessToken = accessToken;
-        state.app_preferences = app_preferences;
-        state.owner_id = owner_id;
-        state.address = address;
-        state.restaurant_name = restaurant_name;
-        state.contact_email = contact_email;
-        state.contact_phone = contact_phone;
-        state.avatar = avatar;
-        state.images_gallery = images_gallery;
-        state.status = status;
-        state.promotions = promotions;
-        state.ratings = ratings;
-        state.specialize_in = specialize_in;
-        state.opening_hours = opening_hours;
+        return { ...state, ...action.payload };
       })
-      .addCase(logout.fulfilled, (state) => {
-        state.user_id = null;
-        state.email = null;
-        state.accessToken = null;
-        state.restaurant_id = null;
-        state.user_type = [];
-        state.app_preferences = {};
-        state.owner_id = null;
-        state.address = null;
-        state.restaurant_name = null;
-        state.contact_email = [];
-        state.contact_phone = [];
-        state.avatar = null;
-        state.images_gallery = [];
-        state.status = null;
-        state.promotions = [];
-        state.ratings = {};
-        state.specialize_in = [];
-        state.opening_hours = {
-          mon: {},
-          tue: {},
-          wed: {},
-          thu: {},
-          fri: {},
-          sat: {},
-          sun: {},
-        };
-      });
+      .addCase(logout.fulfilled, () => initialState);
   },
 });
 
 export const { setAuthState, clearAuthState } = authSlice.actions;
-
 export default authSlice.reducer;

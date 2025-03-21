@@ -105,7 +105,6 @@ const useSearchNearbyDrivers = ({
         getDistance(lat, lng, driver.lat, driver.lng) <= nearbySearchRadius
     );
 
-    // Set the nearby drivers in the state
     setNearbyDrivers(nearby);
   };
 

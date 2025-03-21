@@ -22,6 +22,7 @@ import {
   saveCartItemsToAsyncStorage,
   saveFavoriteRestaurantsToAsyncStorage,
 } from "@/src/store/userPreferenceSlice";
+import Spinner from "@/src/components/FFSpinner";
 
 type LoginScreenNavigationProp = StackNavigationProp<
   AuthStackParamList,
@@ -34,79 +35,78 @@ const Login = () => {
   const rootNavigation = useNavigation<RootNavigationProp>();
   const dispatch = useDispatch();
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const handleLoginSubmit = async (email: string, password: string) => {
-    // Request body
     const requestBody = {
       email: email,
       password: password,
     };
-
+    setIsLoading(true);
     try {
-      // Make the POST request
       const response = await axiosInstance.post(
         "/auth/login-restaurant",
         requestBody,
         {
-          // This will ensure axios does NOT reject on non-2xx status codes
-          validateStatus: () => true, // Always return true so axios doesn't throw on errors
+          validateStatus: () => true,
         }
       );
 
-      // Now you can safely access the EC field
-      const { EC, EM, data } = response.data; // Access EC, EM, and data
+      const { EC, EM, data } = response.data;
 
       if (EC === 0) {
-        // Success, decode the JWT token (assuming 'data.access_token' contains the JWT)
-        const userData = decodeJWT(data.access_token); // Decode JWT to get user data
+        const userData = decodeJWT(data.access_token); // Giả sử decodeJWT trả về dữ liệu giống JSON bạn cung cấp
 
-        // Dispatch the action to save the user data to AsyncStorage and Redux store
         dispatch(
           saveTokenToAsyncStorage({
-            accessToken: data.access_token, // Saving the actual access token
-            app_preferences: userData.app_preferences || {}, // Fallback to empty object if not present
-            email: userData.email || "", // Default to empty string if email is missing
-            address: userData.address || [],
-            restaurant_id: userData.restaurant_id || "",
-            avatar: userData.address || { key: "", url: "" },
-            contact_email: userData.contact_email || [],
-            contact_phone: userData.contact_phone || [],
-            images_gallery: userData.images_gallery || [],
-            opening_hours: userData.opening_hours || {
-              mon: {},
-              tue: {},
-              wed: {},
-              thu: {},
-              fri: {},
-              sat: {},
-              sun: {},
-            },
-            owner_id: userData.owner_id || "",
-            promotions: userData.promotions || [],
-            ratings: userData.ratings || {},
-            restaurant_name: userData.restaurant_name || "",
-            specialize_in: userData.specialize_in || [],
-            status: userData.status || {},
-            user_id: userData.user_id || "",
-            user_type: userData.user_type || "RESTAURANT_OWNER",
+            accessToken: data.access_token,
+            user_id: userData.user_id || null,
+            email: userData.email || null,
+            promotions: userData.promotions || null,
+            user_type: userData.user_type || null,
+            first_name: userData.first_name || null,
+            last_name: userData.last_name || null,
+            app_preferences: userData.app_preferences || null,
+            id: userData.id || null,
+            logged_in_as: userData.logged_in_as || null,
+            owner_id: userData.owner_id || null,
+            owner_name: userData.owner_name || null,
+            restaurant_id: userData.restaurant_id || null,
+            address: userData.address || null,
+            restaurant_name: userData.restaurant_name || null,
+            contact_email: userData.contact_email || null,
+            contact_phone: userData.contact_phone || null,
+            created_at: userData.created_at || null,
+            updated_at: userData.updated_at || null,
+            avatar: userData.avatar || null,
+            images_gallery: userData.images_gallery || null,
+            status: userData.status || null,
+            ratings: userData.ratings || null,
+            specialize_in: userData.specialize_in || null,
+            opening_hours: userData.opening_hours || null,
+            iat: userData.iat || null,
+            exp: userData.exp || null,
           })
         );
-        dispatch(
-          saveFavoriteRestaurantsToAsyncStorage(userData.favorite_restaurants)
-        );
 
-        dispatch(saveCartItemsToAsyncStorage(userData.cart_items));
+        // Các dispatch khác nếu cần
+        // dispatch(saveFavoriteRestaurantsToAsyncStorage(userData.favorite_restaurants));
+        // dispatch(saveCartItemsToAsyncStorage(userData.cart_items));
 
         rootNavigation.navigate("Main");
       } else {
-        // Handle error based on EC (optional)
-        setError(EM); // Show error message if EC is non-zero
+        setError(EM);
       }
+      setIsLoading(false);
     } catch (error) {
+      setIsLoading(false);
       console.error("Login failed:", error);
-      setError("An unexpected error occurred during login."); // Provide a generic error message if the request fails
+      setError("An unexpected error occurred during login.");
     }
   };
 
+  if (isLoading) {
+    return <Spinner isVisible isOverlay />;
+  }
   return (
     <FFSafeAreaView>
       <LinearGradient

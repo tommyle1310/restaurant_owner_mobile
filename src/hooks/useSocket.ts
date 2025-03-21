@@ -1,48 +1,96 @@
-// src/hooks/useSocket.ts
-import { useEffect } from "react";
-import socket from "@/src/services/socket";
-
-interface Order {
-  _id: string;
-  customer_id: string;
-  total_amount: number;
-  status: string;
-}
+import { useEffect, useState } from "react";
+import { io, Socket } from "socket.io-client";
+import { useDispatch, useSelector } from "@/src/store/types";
+import { RootState } from "@/src/store/store";
+import { BACKEND_URL } from "../utils/constants";
+import { Type_PushNotification_Order } from "../types/pushNotification";
 
 export const useSocket = (
-  restaurantId: string,
-  setOrders: React.Dispatch<React.SetStateAction<Order[]>>,
-  sendPushNotification: (order: Order) => void
+  driverId: string,
+  setOrders: React.Dispatch<
+    React.SetStateAction<Type_PushNotification_Order[]>
+  >,
+  sendPushNotification: (order: Type_PushNotification_Order) => void,
+  setLatestOrder: React.Dispatch<
+    React.SetStateAction<Type_PushNotification_Order | null>
+  >,
+  setIsShowToast?: React.Dispatch<React.SetStateAction<boolean>> // Thêm setter cho toast) => {
 ) => {
+  const [socket, setSocket] = useState<Socket | null>(null);
+  const { accessToken, id } = useSelector((state: RootState) => state.auth);
+  const dispatch = useDispatch();
+
   useEffect(() => {
-    if (!restaurantId) {
-      console.log("Please provide a restaurant ID");
+    if (!accessToken) {
+      console.log("No access token available");
       return;
     }
 
-    // Function to join the restaurant's room
-    socket.emit("joinRoomRestaurant", restaurantId);
-
-    // Listen for incoming orders
-    socket.on("incomingOrder", (order: Order) => {
-      setOrders((prevOrders) => [...prevOrders, order]);
-      sendPushNotification(order);
+    const socketInstance = io(`${BACKEND_URL}restaurant`, {
+      transports: ["websocket"],
+      extraHeaders: {
+        auth: `Bearer ${accessToken}`,
+      },
     });
 
-    // Log socket connection status
-    socket.on("connect", () => {
-      console.log("Connected to WebSocket server");
+    socketInstance.on("connect", () => {
+      console.log("Connected to order tracking server");
+      setSocket(socketInstance);
+    });
+    socketInstance.on("incomingOrderForRestaurant", (response) => {
+      console.log("check data incoming", response);
+      const buildDataToPushNotificationType: Type_PushNotification_Order = {
+        id: response?.orderId,
+        customer_id: response?.customer_id,
+        total_amount:
+          response?.total_amount ?? response?.orderDetails?.total_amount,
+        status: response?.status,
+        order_items:
+          response?.order_items ?? response?.orderDetails?.order_items,
+      };
+      console.log(
+        "Received notifyOrderStatus:",
+        buildDataToPushNotificationType
+      );
+      setLatestOrder(buildDataToPushNotificationType); // Set latestOrder để trigger toast
+      setOrders((prevOrders) => {
+        const updatedOrders = prevOrders.map((order) =>
+          order.id === buildDataToPushNotificationType.id
+            ? buildDataToPushNotificationType
+            : order
+        );
+        if (
+          !updatedOrders.some(
+            (order) => order.id === buildDataToPushNotificationType.id
+          )
+        ) {
+          updatedOrders.push(buildDataToPushNotificationType);
+        }
+        return updatedOrders;
+      });
+      if (setIsShowToast) setIsShowToast(true); // Hiện toast
+      sendPushNotification(buildDataToPushNotificationType); // Gửi push notification nếu cần
+      setSocket(socketInstance);
     });
 
-    socket.on("disconnect", () => {
-      console.log("Disconnected from WebSocket server");
+    socketInstance.on("disconnect", (reason) => {
+      console.log("Disconnected from order tracking server:", reason);
+      setSocket(null);
     });
 
-    // Clean up the socket connection on unmount
+    socketInstance.on("connect_error", (error) => {
+      console.error("Connection error:", error);
+      setSocket(null);
+    });
+
+    setSocket(socketInstance);
+
     return () => {
-      socket.off("incomingOrder");
-      socket.off("connect");
-      socket.off("disconnect");
+      if (socketInstance) socketInstance.disconnect();
     };
-  }, [restaurantId, setOrders, sendPushNotification]);
+  }, [accessToken, id, dispatch]);
+
+  return {
+    socket,
+  };
 };
